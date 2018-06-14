@@ -52,11 +52,21 @@ props: {
         this._play()
       }
     }, 20)
+    // 用于监听窗口变化事件resize
+    window.addEventListener('resize',()=>{
+      // slider还没有初始化时
+      if(!this.slider) {
+        return
+      }
+      this._setSliderWidth(true)
+      this.slider.refresh()
+    })
+
   },
 
   methods: {
     // 计算slider的宽度
-    _setSliderWidth() {
+    _setSliderWidth(isResize) {
       // 确定列表有多少个元素
       this.children = this.$refs.sliderGroup.children
 
@@ -70,7 +80,8 @@ props: {
         // 图片总宽度
         width += sliderWidth
       }
-      if(this.loop) {
+      // isResize==true时不需要2倍的width
+      if(this.loop && !isResize) {
         //预留左右轮播宽度
         width += 2*sliderWidth
 
@@ -86,8 +97,7 @@ props: {
         snap:true,// 主要用于轮播
         snapLoop:this.loop,
         snapThreshold:0.3,
-        snapSpeed:400,
-        click:true
+        snapSpeed:400
       })
       // 监测轮播后bs发出的scrollEnd标识
       this.slider.on('scrollEnd',()=>{
