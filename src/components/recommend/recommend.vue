@@ -2,7 +2,17 @@
 <template>
   <div class="recommend">
     <div class="recommend-content">
-      <div class="slider-wrapper"></div>
+      <!-- 当recommends已经取到 再渲染dom -->
+      <div v-if="recommends.length" class="slider-wrapper">
+        <slider>
+          <div v-for="item in recommends">
+            <a :href="item.linlUrl">
+              <img :src="item.picUrl" alt="">
+            </a>
+          </div>
+        </slider>
+      </div>
+
       <div class="recommend-list">
         <h1 class="list-title">热门歌单搜索</h1>
         <ul></ul>
@@ -12,12 +22,15 @@
 </template>
 
 <script type='text/ecmascript-6'>
+import Slider from 'base/slider/slider'
 import {getRecommend} from 'api/recommend'
 export default {
-  // data () {
-  //   return {
-  //   };
-  // },
+  data () {
+    return {
+      recommends: []
+    };
+  },
+  // created还没有执行完毕时  有可能子组件的mounted已经执行完 且没获取到数据
   created() {
     this._getRecommend()
   },
@@ -29,14 +42,15 @@ export default {
 
   methods: {
     _getRecommend() {
-      alert(1)
       getRecommend().then((res) => {
         if(res.code == 0) {
-          
-          console.log(res.data.slider)
+          this.recommends = res.data.slider
         }
       })
     }
+  },
+  components: {
+    Slider
   }
 }
 
