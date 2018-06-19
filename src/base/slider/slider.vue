@@ -131,6 +131,10 @@ props: {
         this.slider.goToPage(pageIndex,0,400)
       },this.interval)
     }
+  },
+  // 销毁定时器
+  destroyed() {
+    clearTimeout(this.timer)
   }
 }
 
