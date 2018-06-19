@@ -2,7 +2,10 @@
   <div id="app">
    <m-header></m-header>
    <Tab></Tab>
+   <!-- 将跳转数据缓存 -->
+   <keep-alive>
    <router-view></router-view>
+   </keep-alive>
   </div>
 </template>
 
