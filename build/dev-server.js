@@ -11,31 +11,34 @@ var express = require('express')
 var webpack = require('webpack')
 var proxyMiddleware = require('http-proxy-middleware')
 var webpackConfig = require('./webpack.dev.conf')
+// +++++++++++++++++++
 var axios = require('axios')
 
-// default port where dev server listens for incoming traffic
+
 var port = process.env.PORT || config.dev.port
-// automatically open browser, if not set will be false
+
 var autoOpenBrowser = !!config.dev.autoOpenBrowser
-// Define HTTP proxies to your custom API backend
-// https://github.com/chimurai/http-proxy-middleware
+
 var proxyTable = config.dev.proxyTable
 
 var app = express()
-
+//定义路由
 var apiRoutes = express.Router()
-
+//代理请求，先请求本地服务 再去请求线上服务
 // apiRoutes.get('/getDiscList', function (req, res) {
 //   var url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
 //   axios.get(url, {
 //     headers: {
+//       // 用相同的域名绕过qq的拒绝
 //       referer: 'https://c.y.qq.com/',
 //       host: 'c.y.qq.com'
 //     },
 //     params: req.query
 //   }).then((response) => {
+//     // 将qq返回数据透传到本地接口
 //     res.json(response.data)
 //   }).catch((e) => {
+//     // 打印错误信息
 //     console.log(e)
 //   })
 // })
@@ -63,7 +66,7 @@ var apiRoutes = express.Router()
 //     console.log(e)
 //   })
 // })
-
+// 设置接口地址为/api
 app.use('/api', apiRoutes)
 
 var compiler = webpack(webpackConfig)
