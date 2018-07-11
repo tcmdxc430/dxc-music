@@ -1,14 +1,16 @@
 <!--  created by dongxc on 2018// -->
 <template>
   <div class="recommend">
-    <div class="recommend-content">
+    <!-- 用discList数据撑开dom并刷新scroll -->
+    <scroll ref="scroll" class="recommend-content" :data="discList">
       <div>
         <!-- 当recommends已经取到 再渲染dom -->
         <div v-if="recommends.length" class="slider-wrapper">
           <slider>
             <div v-for="item in recommends">
               <a :href="item.linkUrl">
-                <img :src="item.picUrl" alt="">
+                <!-- 图片加载时触发load -->
+                <img @load="loadImage" :src="item.picUrl" alt="">
               </a>
             </div>
           </slider>
@@ -30,13 +32,14 @@
           </ul>
         </div>
       </div>
-    </div>
+    </scroll>
   </div>
 </template>
 
 <script type='text/ecmascript-6'>
 import Slider from 'base/slider/slider'
 import {getRecommend,getDiscList} from 'api/recommend'
+import Scroll from 'base/scroll/scroll'
 export default {
   data () {
     return {
@@ -70,10 +73,20 @@ export default {
           this.discList = res.data.list
         }
       })
+    },
+    // 有图片加载代表高度已经撑开
+    loadImage() {
+      // 防止多次重复调用
+      if(!this.checkLoaded) {
+        this.$refs.scroll.refresh()
+        this.checkLoaded = true
+      }
+      
     }
   },
   components: {
-    Slider
+    Slider,
+    Scroll
   }
 }
 
