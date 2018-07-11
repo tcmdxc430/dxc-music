@@ -9,8 +9,8 @@
           <slider>
             <div v-for="item in recommends">
               <a :href="item.linkUrl">
-                <!-- 图片加载时触发load -->
-                <img @load="loadImage" :src="item.picUrl" alt="">
+                <!-- 图片加载时触发load class="needsclick"是fastclick属性表示需要点击 -->
+                <img class="needsclick" @load="loadImage" :src="item.picUrl" alt="">
               </a>
             </div>
           </slider>
@@ -21,7 +21,7 @@
           <ul>
             <li v-for="item in discList" class="item">
               <div class="icon">
-                <img :src="item.imgurl" width="60" height="60" alt="">
+                <img v-lazy="item.imgurl" width="60" height="60" alt="">
               </div>
               <div class="text">
                 <!-- vhtml会对html字符做转义 -->
