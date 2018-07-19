@@ -1,12 +1,16 @@
 <!--  created by dongxc on 2018// -->
 <template>
-  <div class="singer">geshou</div>
+<!-- 歌手tabs -->
+  <div class="singer">
+    <list-view :data="singers"></list-view>
+  </div>
 </template>
 
 <script type='text/ecmascript-6'>
 import {getSingerList} from 'api/singer'
 import {ERR_OK} from 'api/config'
 import Singer from 'common/js/singer'
+import ListView from 'base/listview/listview'
 
 const HOT_NAME = '热门'
 const HOT_SINGER_LEN = 10
@@ -32,8 +36,8 @@ export default {
     _getSingerList() {
       getSingerList().then((res) => {
         if(res.code === 0) {
-          this.singers = res.data.list
-          console.log(this._normalizeSinger(this.singers))
+          // 传入已改造数据
+          this.singers = this._normalizeSinger(res.data.list)
         }
       })
     },
@@ -92,6 +96,9 @@ export default {
       })
       return hot.concat(ret)
     }
+  },
+  components: {
+    ListView
   }
 }
 

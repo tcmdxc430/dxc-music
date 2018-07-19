@@ -1,4 +1,6 @@
+
 <template>
+<!-- 歌手列表组件 -->
   <scroll class="listview" :data="data">
     <ul>
       <li v-for="group in data" class="list-group">
