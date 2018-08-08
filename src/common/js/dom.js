@@ -18,3 +18,16 @@ export function hasClass(el,className) {
     let reg = new RegExp('(^|\\s)'+className+'(\\s|$)')
     return reg.test(el.className)
 }
+// 给event添加index值
+export function getData(el,name,val) {
+    const prefix = "data-"
+    name = prefix+name
+    if(val) {
+        // 设置name=val
+        return el.setAttribute(name,val) 
+    }else {
+        // 获取value为data-index的key
+        console.log(name)
+        return el.getAttribute(name)
+    }
+}

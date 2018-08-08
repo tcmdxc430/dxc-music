@@ -61,6 +61,13 @@ export default {
       refresh() {
           // 重新计算高度
           this.scroll && this.scroll.refresh()
+      },
+      scrollTo() {
+          // scrollTo方法接收到的参数（arguements）传入this.scroll
+          this.scroll && this.scroll.scrollTo.apply(this.scroll,arguments)
+      },
+      scrollToElement() {
+          this.scroll && this.scroll.scrollToElement.apply(this.scroll,arguments)
       }
   },
   watch: {
