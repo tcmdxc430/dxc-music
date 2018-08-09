@@ -1,7 +1,7 @@
 
 <template>
 <!-- 歌手列表组件 -->
-  <scroll class="listview" :data="data" ref="listview">
+  <scroll class="listview" :data="data" ref="listview" :listenScroll="listenScroll" :probeType="probeType" @scroll="scroll">
     <ul>
       <li v-for="group in data" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
@@ -17,7 +17,7 @@
     <div class="list-shortcut" @touchstart="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove">
       <ul>
         <!-- 获得每一个数据的索引，赋值给data-index -->
-        <li v-for="(item,index) in shortcutList" class="item" :data-index="index">
+        <li v-for="(item,index) in shortcutList" class="item" :class="{'current': currentIndex===index}" :data-index="index">
           {{item}}
         </li>
       </ul>
@@ -34,6 +34,18 @@
     created() {
       // 如果在props中声明则会监测touch的变化 没有必要
       this.touch = {}
+      // 通过scroll组件的dom传入scroll.vue中
+      this.listenScroll = true
+      this.listHeight = []
+      // bscroll中probeType=1是非实时派发scroll事件，23都是实时
+      this.probeType = 3
+    },
+    // 需要监测变化的数据
+    data() {
+      return {
+        scrollY: -1,
+        currentIndex: 0 
+      }
     },
     props: {
       data: {
@@ -54,6 +66,7 @@
     methods: {
       onShortcutTouchStart(e) {
         // 点击到的字母的索引
+        // 获得到的是字符串
         let anchorIndex = getData(e.target,'index')
         let firstTouch = e.touches[0]
         //得到开始的y坐标
@@ -70,11 +83,73 @@
         // 得到手指滑动过程中y轴的偏移,得到偏移了几个字母,并向下取整 === math.floor
         let delta = (this.touch.y2 - this.touch.y1)/ANCHOR_HEIGHT | 0
         // 手指离开时的字母
-        let anchorIndex = this.touch.anchorIndex + delta
+        let anchorIndex = parseInt(this.touch.anchorIndex) + delta
+        console.log(anchorIndex)
         this._scrollTo(anchorIndex)
       },
+      scroll(pos) {
+        
+        this.scrollY = pos.y
+      },
+      // 到达滚动到的位置
       _scrollTo(index) {
+        // 滚动边界处理
+        if(!index && index != 0) {
+          return
+        }
+        if(index<0) {
+          index = 0
+        }else if(index>listHeight.length -2) {
+          index = listHeight.length -2
+        }
+        // 设置scrollY，实现点击时也能有高亮样式
+        this.scrollY = -this.listHeight[index]
+        
+        // 第二个参数代表缓动时间
         this.$refs.listview.scrollToElement(this.$refs.listGroup[index],0)
+      },
+      _calculateHeight() {
+        this.listHeight = []
+        const list = this.$refs.listGroup
+        let height = 0
+        this.listHeight.push(height)
+        for(let i=0;i<list.length;i++) {
+          // 得到每一个group元素
+          let item = list[i]
+          height += item.clientHeight
+          this.listHeight.push(height)
+        }
+      }
+    },
+    watch: {
+      data() {
+        // 延迟确保dom已经渲染完毕
+        setTimeout(() => {
+          // 计算高度
+          this._calculateHeight()
+        }, 20);
+      },
+      scrollY(newY) {
+        const listHeight = this.listHeight
+        // 当滚动到顶部 newY>0
+        if(newY > 0) {
+          this.currentIndex = 0
+          return
+        }
+        // 中间各个部位
+        for(let i=0;i<listHeight.length-1;i++) {
+          // 得到一个字母的高度区间
+          let height1 = listHeight[i]
+          let height2 = listHeight[i+1]
+          // 如果滑到底了 或者没有超出本字母区间
+          if(-newY>=height1 && -newY<height2) {
+            // 输出字母区间内的全部index
+            this.currentIndex = i
+            return
+          }
+        }
+        // 当滚到底部，且-newY大于最后一个元素上限 
+        this.currentIndex = listHeight.length -2
       }
     },
     components: {

@@ -27,6 +27,11 @@ export default {
       data: {
           type: Array,
           default: null
+      },
+      // 是否需要监听滚动列表
+      listenScroll: {
+          type: Boolean,
+          defalut: false
       }
   },  
   components: {},
@@ -48,6 +53,14 @@ export default {
               probeType: this.probeType, 
               click: this.click
           })
+
+          if(this.listenScroll) {
+              // 由于this.$emit会指向scroll而不指向vue实例，所以用me保存vue的this
+              let me = this
+              this.scroll.on('scroll',(pos) => {
+                  me.$emit('scroll',pos)
+              })
+          }
       },
       // 代理scroll组件方法
       enable() {
