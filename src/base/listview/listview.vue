@@ -22,6 +22,10 @@
         </li>
       </ul>
     </div>
+    <!-- 顶部名称固定 -->
+    <div class="list-fixed" v-show="fixedTitle" >
+      <h1 class="fixed-title">{{fixedTitle}}</h1>
+    </div>
   </scroll>
 </template>
 
@@ -44,7 +48,9 @@
     data() {
       return {
         scrollY: -1,
-        currentIndex: 0 
+        currentIndex: 0 ,
+        // 判断2个fixedtitle是否重合
+        diff: -1
       }
     },
     props: {
@@ -61,6 +67,13 @@
           // 截取第一个字符
           return group.title.substr(0,1)
         })
+      },
+      // 获取所在区间字母名称
+      fixedTitle() {
+        if(this.scrollY>0) {
+          return ''
+        }
+        return this.data[this.currentIndex]?this.data[this.currentIndex].title:''
       }
     },
     methods: {
@@ -99,8 +112,8 @@
         }
         if(index<0) {
           index = 0
-        }else if(index>listHeight.length -2) {
-          index = listHeight.length -2
+        }else if(index>this.listHeight.length -2) {
+          index = this.listHeight.length -2
         }
         // 设置scrollY，实现点击时也能有高亮样式
         this.scrollY = -this.listHeight[index]
