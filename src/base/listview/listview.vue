@@ -23,8 +23,12 @@
       </ul>
     </div>
     <!-- 顶部名称固定 -->
-    <div class="list-fixed" v-show="fixedTitle" >
+    <div class="list-fixed" v-show="fixedTitle" ref="fixed">
       <h1 class="fixed-title">{{fixedTitle}}</h1>
+    </div>
+     <!-- loading -->
+    <div v-show="!data.length" class="loading-container">
+      <loading></loading>
     </div>
   </scroll>
 </template>
@@ -32,8 +36,10 @@
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll'
   import {getData} from 'common/js/dom'
+  import Loading from 'base/loading/loading'
   // 计算每一个字母的高度
   const ANCHOR_HEIGHT = 18
+  const TITLE_HEIGHT = 30
   export default {
     created() {
       // 如果在props中声明则会监测touch的变化 没有必要
@@ -158,15 +164,27 @@
           if(-newY>=height1 && -newY<height2) {
             // 输出字母区间内的全部index
             this.currentIndex = i
+            // 两个fiexedtitle之间的距离
+            this.diff = height2+newY
             return
           }
         }
         // 当滚到底部，且-newY大于最后一个元素上限 
         this.currentIndex = listHeight.length -2
+      },
+      diff(newVal) {
+        // 计算2个fixedtitle如果完全重叠，就返回完全重叠位置
+        let fixedTop = (newVal>0 && newVal<TITLE_HEIGHT) ? newVal-TITLE_HEIGHT : 0
+        if(this.fixedTop === fixedTop) {
+          return
+        }
+        this.fixedTop = fixedTop
+        this.$refs.fixed.style.transform = `translate3d(0,${fixedTop}px,0)`
       }
     },
     components: {
-      Scroll
+      Scroll,
+      Loading
     }
   }
 </script>
@@ -207,7 +225,7 @@
       right: 0
       top: 50%
       transform: translateY(-50%)
-      width: 20px
+      // width: 20px
       padding: 20px 0
       border-radius: 10px
       text-align: center
@@ -222,7 +240,7 @@
           color: $color-theme
     .list-fixed
       position: absolute
-      top: 0
+      top: -1px
       left: 0
       width: 100%
       .fixed-title
