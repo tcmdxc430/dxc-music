@@ -6,7 +6,7 @@
       <li v-for="group in data" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
-          <li class="list-group-item" v-for="item in group.items">
+          <li @click="selectItem(item)" class="list-group-item" v-for="item in group.items">
             <img v-lazy="item.avatar" class="avatar" alt="">
             <span class="name">{{item.name}}</span>
           </li>
@@ -83,6 +83,10 @@
       }
     },
     methods: {
+      // 派发出对应item使外部知道点击的是哪个item
+      selectItem(item) {
+        this.$emit('select',item)
+      },
       onShortcutTouchStart(e) {
         // 点击到的字母的索引
         // 获得到的是字符串

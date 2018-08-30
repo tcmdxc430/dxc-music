@@ -2,7 +2,9 @@
 <template>
 <!-- 歌手tabs -->
   <div class="singer">
-    <list-view :data="singers"></list-view>
+    <list-view @select="selectSinger" :data="singers"></list-view>
+    <!-- 挂载子路由 -->
+    <router-view></router-view>
   </div>
 </template>
 
@@ -32,6 +34,11 @@ export default {
   // }, 
 
   methods: {
+    selectSinger(singer) {
+      this.$router.push({
+        path:`/singer/${singer.id}`
+      })
+    },
     // 歌手数据 
     _getSingerList() {
       getSingerList().then((res) => {
