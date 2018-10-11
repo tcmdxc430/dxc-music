@@ -8,6 +8,8 @@
 </template>
 
 <script type='text/ecmascript-6'>
+import {mapGetters} from 'vuex'
+import {getSingerDetail} from 'api/singer'
 export default {
   data () {
     return {
@@ -16,13 +18,34 @@ export default {
 
   components: {},
 
-  computed: {},
+  computed: {
+      // 通过vuex获得歌手数据singer
+      ...mapGetters([
+          'singer'
+      ])
+  },
 
   mounted() {},
 
-  created() {},
+  created() {
+      this._getDetail()
+      console.log(this.singer)
+  },
 
-  methods: {}
+  methods: {
+      _getDetail() {
+          // 如果刷新页面没有传入singerid 则跳转得到上一页
+          if(!this.singer.id) {
+              this.$router.push('/singer')
+              return
+          }
+          getSingerDetail(this.singer.id).then((res) => {
+              if(res.code === 0){
+                  console.log(res.data.list)
+              }
+          })
+      }
+  }
 }
 
 </script>
@@ -31,7 +54,7 @@ export default {
 @import '~common/stylus/variable'
 
 .singer-detail
-    position fixed 
+    position fixed
     z-index 100
     top 0
     bottom 0    
