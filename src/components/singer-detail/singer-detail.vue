@@ -10,6 +10,8 @@
 <script type='text/ecmascript-6'>
 import {mapGetters} from 'vuex'
 import {getSingerDetail} from 'api/singer'
+import {getMusic} from 'api/song'
+import {createSong} from  'common/js/song'
 export default {
   data () {
     return {
@@ -42,8 +44,9 @@ export default {
           }
           getSingerDetail(this.singer.id).then((res) => {
               if(res.code === 0){
-                  console.log(res.data.list)
-                  this._normalizeSongs(res.data.list)
+                  // 获得歌手名下每一首歌曲以及对应歌曲信息
+                  this.songs = this._normalizeSongs(res.data.list)
+                  console.log(this.songs)
               }
           })
       },
@@ -53,7 +56,22 @@ export default {
           list.forEach((item) => {
               // 取出每个musicData对象
               let {musicData} = item
+              // 必传参数  
+              if(musicData.songid && musicData.albummid) {
+                //   ret.push(createSong(musicData))
+                
+                getMusic(musicData.songmid).then((res) => {
+                    if(res.code === 0) {
+                        console.log(res)
+                        const svkey = res.data.items
+                        const songVkey = svkey[0].vkey
+                        const newSong = createSong(musicData,songVkey)
+                        ret.push(newSong)
+                    }
+                })
+              }
           })
+          return ret
       }
   }
 }
