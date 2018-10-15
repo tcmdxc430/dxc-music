@@ -13,6 +13,7 @@ import {getSingerDetail} from 'api/singer'
 export default {
   data () {
     return {
+        songs: []
     };
   },
 
@@ -42,7 +43,16 @@ export default {
           getSingerDetail(this.singer.id).then((res) => {
               if(res.code === 0){
                   console.log(res.data.list)
+                  this._normalizeSongs(res.data.list)
               }
+          })
+      },
+      // 对歌手数据处理
+      _normalizeSongs(list) {
+          let ret = []
+          list.forEach((item) => {
+              // 取出每个musicData对象
+              let {musicData} = item
           })
       }
   }
