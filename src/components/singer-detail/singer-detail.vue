@@ -3,7 +3,7 @@
 <!-- 歌手详情页面 -->
     <!-- 过度动画 -->
     <transition name="slide">
-        <div class="singer-detail"></div>
+        <music-list :songs="songs" :title="title" :bg-image="bgImage"></music-list>
     </transition>
 </template>
 
@@ -12,6 +12,7 @@ import {mapGetters} from 'vuex'
 import {getSingerDetail} from 'api/singer'
 import {getMusic} from 'api/song'
 import {createSong} from  'common/js/song'
+import MusicList from 'components/music-list/music-list'
 export default {
   data () {
     return {
@@ -22,6 +23,14 @@ export default {
   components: {},
 
   computed: {
+      // 详情页的歌手名称数据
+      title() {
+          return this.singer.name
+      },
+      // 详情页的歌手大图数据
+      bgImage() {
+          return this.singer.avatar
+      },
       // 通过vuex获得歌手数据singer
       ...mapGetters([
           'singer'
@@ -67,12 +76,15 @@ export default {
                         const songVkey = svkey[0].vkey
                         const newSong = createSong(musicData,songVkey)
                         ret.push(newSong)
-                    }
+                    }7
                 })
               }
           })
           return ret
       }
+  },
+  components: {
+      MusicList
   }
 }
 
@@ -81,14 +93,6 @@ export default {
 <style scoped lang='stylus' rel='stylesheet/stylus'>
 @import '~common/stylus/variable'
 
-.singer-detail
-    position fixed
-    z-index 100
-    top 0
-    bottom 0    
-    left 0
-    right 0
-    background $color-background
 .slide-enter-active,.slide-leave-ative
     transition all 0.3s
 .slide-enter,.slide-leave-to
