@@ -30,11 +30,12 @@ export function getDiscList() {
         rnd:Math.random(),
         format:'json'
     })
-    
-    return axios.get(url, {
+    return axios.get(url,{
         params: data
-      }).then((res) => {
+    }).then((res)=>{
+        // 将res.data作为一个Promis对象返回给上面 [object Promise]
         return Promise.resolve(res.data)
-      })
+    })
+    
 
 }
