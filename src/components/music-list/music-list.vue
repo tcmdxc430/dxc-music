@@ -69,9 +69,25 @@
      watch: {
        scrollY(newY) {
          let zIndex = 0
+         let scale = 1
+         let blur = 0
          // 背景在0到-minTranslateY之间滚动
          let translateY = Math.max(this.minTranslateY,newY)
          this.$refs.layer.style['transform'] = `translate3d(0,${translateY}px,0)`
+        //  下拉
+        // 放大倍数
+        const percent = Math.abs(newY/this.imageHeight)
+        if(newY>0) {
+          scale = 1+percent
+          zIndex = 10
+        }else {
+          blur = Math.min(20*percent,20)
+        }
+        // ios渐进增强的blur效果
+        this.$refs.filter.style['backdrop-filter'] = `blur(${blur}px)`
+        this.$refs.filter.style['webkitBackdrop-filter'] = `blur(${blur}px)`
+        //  上划
+        // 超出顶部留白时
          if(newY<this.minTranslateY) {
            zIndex = 10
            this.$refs.bgImage.style.paddingTop = 0
@@ -81,6 +97,8 @@
            this.$refs.bgImage.style.height = 0
          }
          this.$refs.bgImage.style.zIndex = zIndex
+
+         this.$refs.bgImage.style['transform'] = `scale(${scale})`
        }
      },
      components: {
@@ -128,7 +146,7 @@
       width: 100%
       height: 0
       padding-top: 70%
-      transform-origin: top
+      transform-origin: top //从顶部开始做transform操作，默认为中心
       background-size: cover
       .play-wrapper
         position: absolute
