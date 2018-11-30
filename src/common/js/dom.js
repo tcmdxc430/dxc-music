@@ -63,5 +63,5 @@ export function prefixStyle(style){
         return style
     }
     // 生成带浏览器前缀样式名
-    return vendor + style.chart(0).toUpperCase()+style.substr(1)
+    return vendor + style.charAt(0).toUpperCase()+style.substr(1)
 }
