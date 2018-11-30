@@ -23,8 +23,11 @@
 <script type="text/ecmascript-6">
  import Scroll from 'base/scroll/scroll'
  import SongList from 'base/song-list/song-list'
+ import {prefixStyle} from 'common/js/dom'
  // 顶部留白
  const RESERVED_HEIGHT = 40
+ const transform = prefixStyle('transform')
+ const backdrop = prefixStyle('backdrop-filter')
  export default {
      props: {
         bgImage: {
@@ -73,7 +76,7 @@
          let blur = 0
          // 背景在0到-minTranslateY之间滚动
          let translateY = Math.max(this.minTranslateY,newY)
-         this.$refs.layer.style['transform'] = `translate3d(0,${translateY}px,0)`
+         this.$refs.layer.style[transform] = `translate3d(0,${translateY}px,0)`
         //  下拉
         // 放大倍数
         const percent = Math.abs(newY/this.imageHeight)
@@ -84,8 +87,7 @@
           blur = Math.min(20*percent,20)
         }
         // ios渐进增强的blur效果
-        this.$refs.filter.style['backdrop-filter'] = `blur(${blur}px)`
-        this.$refs.filter.style['webkitBackdrop-filter'] = `blur(${blur}px)`
+        this.$refs.filter.style[backdrop] = `blur(${blur}px)`
         //  上划
         // 超出顶部留白时
          if(newY<this.minTranslateY) {
@@ -98,7 +100,7 @@
          }
          this.$refs.bgImage.style.zIndex = zIndex
 
-         this.$refs.bgImage.style['transform'] = `scale(${scale})`
+         this.$refs.bgImage.style[transform] = `scale(${scale})`
        }
      },
      components: {

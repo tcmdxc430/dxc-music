@@ -31,3 +31,37 @@ export function getData(el,name,val) {
         return el.getAttribute(name)
     }
 }
+// autoprefix
+// 查看浏览器css特性支持列表
+let elementStyle = document.createElement('div').style
+
+// 浏览器供应商列表
+let vendor = (() => {
+    let transformNames = {
+        webkit:'webkitTransform',
+        Moz:'MozTransform',
+        O:'OTransform',
+        ms:'msTransform',
+        standard:'transform'
+    }
+
+    for(let key in transformNames) {
+        
+        if(elementStyle[transformNames[key]]!==undefined) {
+             
+            return key
+        }
+    }
+    return false
+})()
+
+export function prefixStyle(style){
+    if(vendor == false){
+        return false
+    }
+    if(vendor == 'standard'){
+        return style
+    }
+    // 生成带浏览器前缀样式名
+    return vendor + style.chart(0).toUpperCase()+style.substr(1)
+}
