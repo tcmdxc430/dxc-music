@@ -2,12 +2,17 @@
 <template>
 <!-- 歌手详情页面 -->
   <div class="music-list">
-    <div class="back">
+    <div class="back" @click="back">
       <i class="icon-back"></i>
     </div>
     <h1 class="title" v-html="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
-      
+      <div class="play-wrapper">
+        <div class="play" v-show="songs.length>0" ref="playBtn">
+          <i class="icon-play"></i>
+          <span class="text">都给我播放</span>
+        </div>
+      </div>
       <div class="filter" ref="filter"></div>
     </div>
     <!-- 列表向上滑动时的跟随背景 -->
@@ -15,6 +20,9 @@
     <scroll @scroll="scroll" :probe-type="probeType" :listen-scroll="listenScroll" :data="songs" class="list" ref="list">
         <div class="song-list-wrapper">
             <song-list :songs="songs"></song-list>
+        </div>
+        <div class="loading-container" v-show="!songs.length">
+          <loading></loading>
         </div>
     </scroll>
   </div>
@@ -24,6 +32,7 @@
  import Scroll from 'base/scroll/scroll'
  import SongList from 'base/song-list/song-list'
  import {prefixStyle} from 'common/js/dom'
+ import Loading from 'base/loading/loading'
  // 顶部留白
  const RESERVED_HEIGHT = 40
  const transform = prefixStyle('transform')
@@ -58,7 +67,7 @@
        this.listenScroll = true
      },
      mounted() {
-      //  imageHeight加入缓存
+      //  imageHeight加入缓存 
        this.imageHeight = this.$refs.bgImage.clientHeight
        this.minTranslateY = -this.imageHeight +RESERVED_HEIGHT
        // $el取得对应dom
@@ -67,6 +76,9 @@
      methods: {
        scroll(pos) {
          this.scrollY = pos.y
+       },
+       back() {
+         this.$router.back()
        }
      },
      watch: {
@@ -94,9 +106,11 @@
            zIndex = 10
            this.$refs.bgImage.style.paddingTop = 0
            this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`
+           this.$refs.playBtn.style.display = 'none'
          }else{
            this.$refs.bgImage.style.paddingTop = '70%'
            this.$refs.bgImage.style.height = 0
+           this.$refs.playBtn.style.display = ''
          }
          this.$refs.bgImage.style.zIndex = zIndex
 
@@ -105,7 +119,8 @@
      },
      components: {
          Scroll,
-         SongList
+         SongList,
+         Loading
      }
  }
 </script>
