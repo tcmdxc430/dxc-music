@@ -1,1 +1,1 @@
-// 异步修改state
+// 异步修改state  封装mutation调用一个action修改多个mutation
