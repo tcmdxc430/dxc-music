@@ -1,7 +1,7 @@
 <template>
   <div class="song-list">
     <ul>
-      <li v-for="song in songs" class="item">
+      <li @click="selectItem(song,index)" v-for="(song,index) in songs" class="item">
           <div class="content">
               <!-- 歌名 -->
               <h2 class="name">{{song.name}}</h2>
@@ -22,6 +22,10 @@
             }
         },
         methods: {
+          // 仅向父组件传值
+            selectItem(item,index) {
+              this.$emit('select',item,index)
+            },
             getDesc(song) {
                 return `${song.singer}-${song.album}`
             }

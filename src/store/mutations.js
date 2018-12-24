@@ -13,10 +13,11 @@ const mutations = {
         state.fullScreen = flag
     },
     [types.SET_PLAYLIST](state,list) {
-        state.playlist = list
+        // Object.assign([], list)使list不在vuex以外的地方改变
+        state.playlist = Object.assign([], list)
     },
     [types.SET_SEQUENCE_LIST](state,list) {
-        state.sequenceList = list
+        state.sequenceList = Object.assign([], list)
     },
     [types.SET_PLAY_MODE](state,mode) {
         state.mode = mode
