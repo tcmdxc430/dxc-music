@@ -1,24 +1,99 @@
 <template>
   <div class="player" v-show="playlist.length>0">
+    <!-- 通用播放器 -->
       <div class="normal-player" v-show="fullScreen">
-        大灯笼
+        <div class="background">
+          <img width="100%" height="100%" :src="currentSong.image">
+        </div>
+        <!-- 顶部 -->
+        <div class="top">
+          <!-- 返回键 -->
+          <div class="back" @click="back">
+            <i class="icon-back"></i>
+          </div>
+          <!-- 歌曲名称 -->
+          <h1 class="title" v-html="currentSong.name"></h1>
+          <!-- 歌手名称 -->
+          <h2 class="subtitle" v-html="currentSong.singer"></h2>
+        </div>
+        <!-- 中部 -->
+        <div class="middle">
+          <div class="middle-l" >
+            <div class="cd-wrapper" >
+              <!-- 中部唱片背景图 -->
+              <div class="cd" >
+                <img class="image" :src="currentSong.image">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 底部 -->
+        <div class="bottom">
+          <!-- 操作控制区 -->
+          <div class="operators">
+            <div class="icon i-left" >
+              <i class="icon-sequence"></i>
+            </div>
+            <div class="icon i-left" >
+              <i class="icon-prev"></i>
+            </div>
+            <div class="icon i-center">
+              <i class="icon-play"></i>
+            </div>
+            <div class="icon i-right" >
+              <i class="icon-next"></i>
+            </div>
+            <div class="icon i-right">
+              <i class="icon-not-favorite"></i>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="mini-player" v-show="!fullScreen">
-
+      <!-- 迷你播放器 -->
+      <div class="mini-player" v-show="!fullScreen" @click="open">
+        <!-- 唱片缩略图 -->
+        <div class="icon">
+          <img width="40" height="40" :src="currentSong.image">
+        </div>
+        <!-- 歌手歌曲名称 -->
+        <div class="text">
+          <h2 class="name" v-html="currentSong.name"></h2>
+          <p class="desc" v-html="currentSong.singer"></p>
+        </div>
+        <!-- 播放按钮 -->
+        <div class="control">
+        </div>
+        <!-- 歌曲列表展开按钮 -->
+        <div class="control">
+          <i class="icon-playlist"></i>
+        </div>
       </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-import {mapGetters} from 'vuex';
+import {mapGetters,mapMutations} from 'vuex';
 
 export default {
     computed: {
         ...mapGetters([
             'fullScreen',
-            'playlist'
+            'playlist',
+            'currentSong'
         ])
-    }
+    },
+    methods: {
+      back() {
+        // 直接用this.fullScreen = false不可用 因为vuex mapGetters取得的数据只能在vuex中修改
+        this.setFullScreen(false)
+      },
+      open() {
+        this.setFullScreen(true)
+      },
+      ...mapMutations({
+        setFullScreen: 'SET_FULL_SCREEN'
+      })
+    },
 }
   
 </script>
