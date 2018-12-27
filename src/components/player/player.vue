@@ -1,6 +1,8 @@
 <template>
   <div class="player" v-show="playlist.length>0">
     <!-- 通用播放器 -->
+    <!-- transition中添加了4个动画钩子 -->
+    <transition name="normal" @enter="enter" @after-enter="afterEnter" @leave="leave" @after-leave="afterLeave">
       <div class="normal-player" v-show="fullScreen">
         <div class="background">
           <img width="100%" height="100%" :src="currentSong.image">
@@ -19,7 +21,7 @@
         <!-- 中部 -->
         <div class="middle">
           <div class="middle-l" >
-            <div class="cd-wrapper" >
+            <div class="cd-wrapper" ref="cdWrapper">
               <!-- 中部唱片背景图 -->
               <div class="cd" >
                 <img class="image" :src="currentSong.image">
@@ -49,7 +51,9 @@
           </div>
         </div>
       </div>
+    </transition>
       <!-- 迷你播放器 -->
+    <transition name="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
         <!-- 唱片缩略图 -->
         <div class="icon">
@@ -68,11 +72,16 @@
           <i class="icon-playlist"></i>
         </div>
       </div>
+    </transition>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 import {mapGetters,mapMutations} from 'vuex';
+import animations from 'create-keyframe-animation' // 用于将js代码编译为css animate
+import {prefixStyle} from 'common/js/dom'
+
+const transform = prefixStyle('transform')
 
 export default {
     computed: {
@@ -89,6 +98,62 @@ export default {
       },
       open() {
         this.setFullScreen(true)
+      },
+      // el是添加动画的dom，done是enter的回调函数，调用done表示将继续执行下一个afterEnter钩子函数 
+      enter(el,done) {
+        const {x,y,scale} = this.getPosAndScale()
+        // 定义动画
+        let animation = {
+          0: {
+            transform: `translate3d(${x}px,${y}px,0) scale(${scale})`
+          },
+          60: {
+            transform: `translate3d(0,0,0) scale(1.1)`
+          },
+          100: {
+            transform: `translate3d(0,0,0) scale(1)`
+          }
+        }
+        // 初始化animations
+        animations.registerAnimation({
+          name:'move',
+          animation,
+          presets: {
+            durantion:400,
+            easing:'linear'
+          }
+        })
+        // 运行animations
+        animations.runAnimation(this.$refs.cdWrapper,'move',done)
+      },
+      // 动画完成清除样式 
+      afterEnter() {
+        animations.registerAnimation('move')
+        this.$refs.cdWrapper.style.animation = ''
+      },
+      leave(el,done) {
+        this.$refs.cdWrapper.style.transition = 'all 0.4s'
+        const {x,y,scale} = this.getPosAndScale()
+        this.$refs.cdWrapper.style[transform] = `translate3d(${x}px,${y}px,0) scale(${scale})`
+        this.$refs.cdWrapper.addEventListener('transitionend',done)
+      },
+      afterLeave() {
+        this.$refs.cdWrapper.style[transform] = ''
+        this.$refs.cdWrapper.style[transform] = ''
+      },
+      // 做位移动画时，获取大小图标xy偏移量以及缩放变化
+      getPosAndScale() {
+        const targetWidth = 40 // 初始小图标的宽度
+        const paddingLeft = 40 // 初始小图标的x偏移
+        const paddingButtom = 30 // 初始小图标的y偏移
+        const paddingTop = 80 // 大图标的top值
+        const width = window.innerWidth*0.8 // 大图标宽度
+        const scale = targetWidth/width // 小图标的缩放比例
+        const x = -(window.innerWidth/2-paddingLeft) // 整个过程的x偏移 向右运动为负值
+        const y = window.innerHeight-paddingTop-width/2-paddingButtom // 整个过程y的偏移
+        return{
+          x,y,scale
+        }
       },
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN'
@@ -273,7 +338,7 @@ export default {
       &.normal-enter-active, &.normal-leave-active
         transition: all 0.4s
         .top, .bottom
-          transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32)
+          transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32)//贝塞尔曲线
       &.normal-enter, &.normal-leave-to
         opacity: 0
         .top
