@@ -23,7 +23,7 @@
           <div class="middle-l" >
             <div class="cd-wrapper" ref="cdWrapper">
               <!-- 中部唱片背景图 -->
-              <div class="cd" >
+              <div class="cd" :class="cdCls">
                 <img class="image" :src="currentSong.image">
               </div>
             </div>
@@ -41,7 +41,7 @@
             </div>
             <div class="icon i-center">
               <!-- 暂停按钮 -->
-              <i @click="togglePlaying" class="icon-play"></i>
+              <i @click="togglePlaying" :class="playIcon"></i>
             </div>
             <div class="icon i-right" >
               <i class="icon-next"></i>
@@ -58,7 +58,7 @@
       <div class="mini-player" v-show="!fullScreen" @click="open">
         <!-- 唱片缩略图 -->
         <div class="icon">
-          <img width="40" height="40" :src="currentSong.image">
+          <img :class="cdCls" width="40" height="40" :src="currentSong.image">
         </div>
         <!-- 歌手歌曲名称 -->
         <div class="text">
@@ -67,6 +67,7 @@
         </div>
         <!-- 播放按钮 -->
         <div class="control">
+          <i @click.stop="togglePlaying" :class="miniIcon"></i>
         </div>
         <!-- 歌曲列表展开按钮 -->
         <div class="control">
@@ -87,6 +88,15 @@ const transform = prefixStyle('transform')
 
 export default {
     computed: {
+        playIcon() {
+          return this.playing?'icon-pause':'icon-play'
+        },
+        miniIcon() {
+          return this.playing?'icon-pause-mini':'icon-play-mini'
+        },
+        cdCls() {
+          return this.playing?'play':'play pause'
+        },
         ...mapGetters([
             'fullScreen',
             'playlist',
