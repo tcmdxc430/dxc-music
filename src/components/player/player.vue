@@ -40,7 +40,8 @@
               <i class="icon-prev"></i>
             </div>
             <div class="icon i-center">
-              <i class="icon-play"></i>
+              <!-- 暂停按钮 -->
+              <i @click="togglePlaying" class="icon-play"></i>
             </div>
             <div class="icon i-right" >
               <i class="icon-next"></i>
@@ -73,6 +74,7 @@
         </div>
       </div>
     </transition>
+    <audio :src="currentSong.url" ref="audio"></audio>
   </div>
 </template>
 
@@ -88,7 +90,8 @@ export default {
         ...mapGetters([
             'fullScreen',
             'playlist',
-            'currentSong'
+            'currentSong',
+            'playing'
         ])
     },
     methods: {
@@ -141,6 +144,10 @@ export default {
         this.$refs.cdWrapper.style[transform] = ''
         this.$refs.cdWrapper.style[transform] = ''
       },
+      // 暂停/播放
+      togglePlaying() {
+        this.setPlayingState(!this.playing)
+      },
       // 做位移动画时，获取大小图标xy偏移量以及缩放变化
       getPosAndScale() {
         const targetWidth = 40 // 初始小图标的宽度
@@ -156,9 +163,25 @@ export default {
         }
       },
       ...mapMutations({
-        setFullScreen: 'SET_FULL_SCREEN'
+        setFullScreen: 'SET_FULL_SCREEN',
+        setPlayingState:'SET_PLAYING_STATE'
       })
     },
+    watch:{
+      // 当currentSong发生变化时播放
+      currentSong() {
+        this.$nextTick(()=>{
+          this.$refs.audio.play()
+        })
+        
+      },
+      playing(newPlaying) {
+        const audio = this.$refs.audio
+        this.$nextTick(()=>{
+          newPlaying?audio.play():audio.pause()
+        })
+      }
+    }
 }
   
 </script>
