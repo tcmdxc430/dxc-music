@@ -31,6 +31,14 @@
         </div>
         <!-- 底部 -->
         <div class="bottom">
+          <!-- 进度条 -->
+          <div class="progress-wrapper">
+            <span class="time time-l">{{format(currentTime)}}</span>
+            <div class="progress-bar-wrapper">
+              <progress-bar :percent="percent"></progress-bar>
+            </div>
+            <span class="time time-r">{{format(currentSong.duration)}}</span>
+          </div>
           <!-- 操作控制区 -->
           <div class="operators">
             <div class="icon i-left" >
@@ -77,8 +85,8 @@
         </div>
       </div>
     </transition>
-    <!-- canplay为歌曲加载完成播放前派发事件 -->
-    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error"></audio>
+    <!-- canplay为歌曲加载完成播放前派发事件 timeupdate为歌曲播放后触发 -->
+    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
   </div>
 </template>
 
@@ -86,13 +94,15 @@
 import {mapGetters,mapMutations} from 'vuex';
 import animations from 'create-keyframe-animation' // 用于将js代码编译为css animate
 import {prefixStyle} from 'common/js/dom'
+import ProgressBar from 'base/progress-bar/progress-bar'
 
 const transform = prefixStyle('transform')
 
 export default {
     data() {
       return{
-        songReady:false
+        songReady:false,
+        currentTime:0
       }
     },
     computed: {
@@ -107,6 +117,9 @@ export default {
         },
         disableCls() {
           return this.songReady?'':'disable'
+        },
+        percent() {
+          return this.currentTime/this.currentSong.duration
         },
         ...mapGetters([
             'fullScreen',
@@ -144,7 +157,7 @@ export default {
           name:'move',
           animation,
           presets: {
-            durantion:400,
+            duration:400,
             easing:'linear'
           }
         })
@@ -222,6 +235,22 @@ export default {
       error() {
         this.songReady = true
       },
+      // 获取当前播放时间
+      updateTime(e) {
+        console.log(e)
+        this.currentTime = e.target.currentTime
+      },
+      format(interval) {
+        console.log(this.currentSong)
+        // 向下取整 相当于math.floor
+        interval = interval|0
+        const minute = interval/60|0
+        let second = interval%60
+        if(second<10) {
+          second = '0'+second
+        }
+        return `${minute}:${second}`
+      },
       // mutation-types.js文件的映射
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
@@ -243,6 +272,9 @@ export default {
           newPlaying?audio.play():audio.pause()
         })
       }
+    },
+    components:{
+      ProgressBar
     }
 }
   
