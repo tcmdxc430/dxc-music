@@ -36,14 +36,16 @@
             <div class="icon i-left" >
               <i class="icon-sequence"></i>
             </div>
-            <div class="icon i-left" >
+            <!-- 后退按钮 -->
+            <div class="icon i-left" :class="disableCls">
               <i @click="prev" class="icon-prev"></i>
             </div>
-            <div class="icon i-center">
-              <!-- 暂停按钮 -->
+            <!-- 暂停/播放按钮 -->
+            <div class="icon i-center" :class="disableCls">
               <i @click="togglePlaying" :class="playIcon"></i>
             </div>
-            <div class="icon i-right" >
+            <!-- 前进按钮 -->
+            <div class="icon i-right" :class="disableCls">
               <i @click="next" class="icon-next"></i>
             </div>
             <div class="icon i-right">
@@ -102,6 +104,9 @@ export default {
         },
         cdCls() {
           return this.playing?'play':'play pause'
+        },
+        disableCls() {
+          return this.songReady?'':'disable'
         },
         ...mapGetters([
             'fullScreen',
@@ -215,7 +220,7 @@ export default {
         this.songReady = true
       },
       error() {
-
+        this.songReady = true
       },
       // mutation-types.js文件的映射
       ...mapMutations({
