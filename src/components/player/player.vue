@@ -37,14 +37,14 @@
               <i class="icon-sequence"></i>
             </div>
             <div class="icon i-left" >
-              <i class="icon-prev"></i>
+              <i @click="prev" class="icon-prev"></i>
             </div>
             <div class="icon i-center">
               <!-- 暂停按钮 -->
               <i @click="togglePlaying" :class="playIcon"></i>
             </div>
             <div class="icon i-right" >
-              <i class="icon-next"></i>
+              <i @click="next" class="icon-next"></i>
             </div>
             <div class="icon i-right">
               <i class="icon-not-favorite"></i>
@@ -75,7 +75,8 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio"></audio>
+    <!-- canplay为歌曲加载完成播放前派发事件 -->
+    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error"></audio>
   </div>
 </template>
 
@@ -87,6 +88,11 @@ import {prefixStyle} from 'common/js/dom'
 const transform = prefixStyle('transform')
 
 export default {
+    data() {
+      return{
+        songReady:false
+      }
+    },
     computed: {
         playIcon() {
           return this.playing?'icon-pause':'icon-play'
@@ -101,7 +107,8 @@ export default {
             'fullScreen',
             'playlist',
             'currentSong',
-            'playing'
+            'playing',
+            'currentIndex'
         ])
     },
     methods: {
@@ -172,9 +179,49 @@ export default {
           x,y,scale
         }
       },
+      // 下一首
+      next() {
+        if(!this.songReady){
+          return
+        }
+        let index = this.currentIndex+1
+        if(index == this.playlist.length) {
+          index = 0
+        }
+        this.setCurrentIndex(index)
+        // 如果此时为暂停状态，重新获取一下按钮状态
+        if(!this.playing){
+          this.togglePlaying()
+        }
+        this.songReady = false
+      },
+      // 上一首
+      prev() {
+        if(!this.songReady){
+          return
+        }
+        let index = this.currentIndex-1
+        if(index == -1) {
+          index = this.playlist.length-1
+        }
+        this.setCurrentIndex(index)
+        if(!this.playing){
+          this.togglePlaying()
+        }
+        this.songReady = false
+      },
+      // 歌曲加载完成时
+      ready() {
+        this.songReady = true
+      },
+      error() {
+
+      },
+      // mutation-types.js文件的映射
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
-        setPlayingState:'SET_PLAYING_STATE'
+        setPlayingState:'SET_PLAYING_STATE',
+        setCurrentIndex:'SET_CURRENT_INDEX'
       })
     },
     watch:{
