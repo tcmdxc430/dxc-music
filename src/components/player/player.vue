@@ -77,7 +77,10 @@
         </div>
         <!-- 播放按钮 -->
         <div class="control">
-          <i @click.stop="togglePlaying" :class="miniIcon"></i>
+          <!-- mini进度条 -->
+          <progress-circle :radius="radius" :percent="percent">
+            <i slot="miniIcon" @click.stop="togglePlaying" class="icon-mini" :class="miniIcon"></i>
+          </progress-circle>
         </div>
         <!-- 歌曲列表展开按钮 -->
         <div class="control">
@@ -95,6 +98,7 @@ import {mapGetters,mapMutations} from 'vuex';
 import animations from 'create-keyframe-animation' // 用于将js代码编译为css animate
 import {prefixStyle} from 'common/js/dom'
 import ProgressBar from 'base/progress-bar/progress-bar'
+import ProgressCircle from 'base/progress-circle/progress-circle'
 
 const transform = prefixStyle('transform')
 
@@ -102,7 +106,8 @@ export default {
     data() {
       return{
         songReady:false,
-        currentTime:0
+        currentTime:0,
+        radius:32
       }
     },
     computed: {
@@ -281,7 +286,8 @@ export default {
       }
     },
     components:{
-      ProgressBar
+      ProgressBar,
+      ProgressCircle
     }
 }
   
