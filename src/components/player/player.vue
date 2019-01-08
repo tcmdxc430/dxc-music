@@ -35,7 +35,7 @@
           <div class="progress-wrapper">
             <span class="time time-l">{{format(currentTime)}}</span>
             <div class="progress-bar-wrapper">
-              <progress-bar :percent="percent"></progress-bar>
+              <progress-bar :percent="percent" @percentChange="onProgressBarChange"></progress-bar>
             </div>
             <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
@@ -250,6 +250,13 @@ export default {
           second = '0'+second
         }
         return `${minute}:${second}`
+      },
+      // 修改拖动后歌曲的实际进度
+      onProgressBarChange(percent) {
+        this.$refs.audio.currentTime = this.currentSong.duration*percent // audio.currentTime为可读写的audio标签属性
+        if(!this.playing) {
+          this.togglePlaying()
+        }
       },
       // mutation-types.js文件的映射
       ...mapMutations({
