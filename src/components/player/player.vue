@@ -41,8 +41,9 @@
           </div>
           <!-- 操作控制区 -->
           <div class="operators">
-            <div class="icon i-left" >
-              <i class="icon-sequence"></i>
+             <!-- 播放模式 -->
+            <div class="icon i-left" @click="changeMode">
+              <i :class="iconMode"></i>
             </div>
             <!-- 后退按钮 -->
             <div class="icon i-left" :class="disableCls">
@@ -89,7 +90,8 @@
       </div>
     </transition>
     <!-- canplay为歌曲加载完成播放前派发事件 timeupdate为歌曲播放后触发 -->
-    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
+    <!-- audio标签在播放完成后触发ended -->
+    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
   </div>
 </template>
 
@@ -99,6 +101,9 @@ import animations from 'create-keyframe-animation' // 用于将js代码编译为
 import {prefixStyle} from 'common/js/dom'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
+import {playMode} from 'common/js/config'
+import {shuffle} from 'common/js/util'
+import Lyric from 'lyric-parser'
 
 const transform = prefixStyle('transform')
 
@@ -107,7 +112,8 @@ export default {
       return{
         songReady:false,
         currentTime:0,
-        radius:32
+        radius:32,
+        currentLyric:null
       }
     },
     computed: {
@@ -126,12 +132,17 @@ export default {
         percent() {
           return this.currentTime/this.currentSong.duration
         },
+        iconMode() {
+           return this.mode == playMode.sequence?'icon-sequence':this.mode == playMode.loop?'icon-loop':'icon-random'
+        },
         ...mapGetters([
             'fullScreen',
             'playlist',
             'currentSong',
             'playing',
-            'currentIndex'
+            'currentIndex',
+            'mode',
+            'sequenceList'
         ])
     },
     methods: {
@@ -202,6 +213,21 @@ export default {
           x,y,scale
         }
       },
+      // 播放完成触发
+      end() {
+        // 当模式为单曲循环 不跳转到下一首index
+        if(this.mode == playMode.loop){
+          this.loop()
+        }else(
+          this.next()
+        )
+        
+      },
+      // 单曲循环方法 时间重置为0 再播放
+      loop() {
+          this.$refs.audio.currentTime = 0
+          this.$refs.audio.play()
+      },
       // 下一首
       next() {
         if(!this.songReady){
@@ -263,18 +289,53 @@ export default {
           this.togglePlaying()
         }
       },
-      // mutation-types.js文件的映射
+      // 每点击一次 更换一次循环模式
+      changeMode() {
+        const mode = (this.mode+1)%3
+        this.setPlayMode(mode)
+        let list = null
+        if(mode == playMode.random){
+          list = shuffle(this.sequenceList)
+        } else{
+          list = this.sequenceList
+        }
+        this.resetCurrnetIndex(list)
+        this.setPlayList(list)
+      },
+      // 播放模式改变时 当前歌曲不变
+      resetCurrnetIndex(list) {
+        // findIndex是es6语法，类似foreach index为歌曲索引
+        let index = list.findIndex((item)=>{
+          return item.id == this.currentSong.id
+        })
+        console.log(index)
+        this.setCurrentIndex(index)
+      },
+      getLyric() {  
+        this.currentSong.getLyric().then((lyric)=>{
+          this.currentLyric = new Lyric(lyric)
+          console.log(this.currentLyric)
+        })
+      },
+      // mutation-types.js文件的映射 制造一个方法名来映射
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
         setPlayingState:'SET_PLAYING_STATE',
-        setCurrentIndex:'SET_CURRENT_INDEX'
+        setCurrentIndex:'SET_CURRENT_INDEX',
+        setPlayMode: 'SET_PLAY_MODE',
+        setPlayList:'SET_PLAYLIST'
       })
     },
     watch:{
       // 当currentSong发生变化时播放
-      currentSong() {
+      currentSong(newSong,oldSong) {
+        if(newSong.id == oldSong.id){
+          return
+        }
         this.$nextTick(()=>{
           this.$refs.audio.play()
+          // 加载歌词
+          this.getLyric()
         })
         
       },

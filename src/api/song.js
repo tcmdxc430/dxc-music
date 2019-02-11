@@ -1,15 +1,16 @@
 import {commonParams} from './config'
 import axios from 'axios'
-
+// mid歌曲id
 export function getLyric(mid) {
   const url = '/api/lyric'
 
   const data = Object.assign({}, commonParams, {
+    g_tk:5381,
     songmid: mid,
     platform: 'yqq',
     hostUin: 0,
     needNewCode: 0,
-    categoryId: 10000000,
+    // categoryId: 10000000,
     pcachetime: +new Date(),
     format: 'json'
   })
@@ -17,6 +18,12 @@ export function getLyric(mid) {
   return axios.get(url, {
     params: data
   }).then((res) => {
+    // 如果嫩更匹配到callback个事返回，将callback转为json
+    var reg = /^\w+\(({[^()]+})\)$/
+    var matches = res.data.match(reg)
+    if(matches) {
+      res.data = JSON.parse(matches[1])
+    }
     return Promise.resolve(res.data)
   })
 }
