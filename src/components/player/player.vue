@@ -28,6 +28,14 @@
               </div>
             </div>
           </div>
+          <!-- 歌词 -->
+          <scroll class="middle-r" ref="lyricList" :data="currentLyric&&currentLyric.lines">
+            <div class="lyric-wrapper">
+              <div v-if="currentLyric">
+                <p ref="lyricLine" class="text" :class="{'current':currentLineNum === index}" v-for="(line,index) in currentLyric.lines" :key="index">{{line.txt}}</p>
+              </div>
+            </div>
+          </scroll>
         </div>
         <!-- 底部 -->
         <div class="bottom">
@@ -104,6 +112,7 @@ import ProgressCircle from 'base/progress-circle/progress-circle'
 import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/util'
 import Lyric from 'lyric-parser'
+import Scroll from 'base/scroll/scroll'
 
 const transform = prefixStyle('transform')
 
@@ -113,7 +122,8 @@ export default {
         songReady:false,
         currentTime:0,
         radius:32,
-        currentLyric:null
+        currentLyric:null,
+        currentLineNum:0
       }
     },
     computed: {
@@ -313,9 +323,24 @@ export default {
       },
       getLyric() {  
         this.currentSong.getLyric().then((lyric)=>{
-          this.currentLyric = new Lyric(lyric)
+          // 歌词行变更时 回调handleLyric
+          this.currentLyric = new Lyric(lyric,this.handleLyric)
+          if(this.playing) {
+            // lyric-parser方法
+            this.currentLyric.play()
+          }
           console.log(this.currentLyric)
         })
+      },
+      handleLyric({lineNum,txt}){
+        this.currentLineNum = lineNum
+        if(lineNum>5) {
+          // 发生滚动时 保持高亮再5行的中间位置
+          let lineEl = this.$refs.lyricLine[lineNum-5]
+          this.$refs.lyricList.scrollToElement(lineEl,1000)
+        }else{
+          this.$refs.lyricList.scrollTo(0,0,1000)
+        }
       },
       // mutation-types.js文件的映射 制造一个方法名来映射
       ...mapMutations({
@@ -348,7 +373,8 @@ export default {
     },
     components:{
       ProgressBar,
-      ProgressCircle
+      ProgressCircle,
+      Scroll
     }
 }
   
