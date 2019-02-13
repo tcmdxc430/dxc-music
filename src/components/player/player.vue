@@ -19,10 +19,10 @@
           <h2 class="subtitle" v-html="currentSong.singer"></h2>
         </div>
         <!-- 中部 -->
-        <div class="middle">
-          <div class="middle-l" >
+        <div class="middle" @touchstart.prevent="middleTouchStart" @touchmove.prevent="middleTouchMove" @touchend="middleTouchEnd">
+          <!-- 中部唱片cd图 -->
+          <div class="middle-l" ref="middleL">
             <div class="cd-wrapper" ref="cdWrapper">
-              <!-- 中部唱片背景图 -->
               <div class="cd" :class="cdCls">
                 <img class="image" :src="currentSong.image">
               </div>
@@ -39,6 +39,11 @@
         </div>
         <!-- 底部 -->
         <div class="bottom">
+          <!-- 左右滑动的标点 -->
+          <div class="dot-wrapper">
+            <span class="dot" :class="{'active':currentShow === 'cd'}"></span>
+            <span class="dot" :class="{'active':currentShow === 'lyric'}"></span>
+          </div>
           <!-- 进度条 -->
           <div class="progress-wrapper">
             <span class="time time-l">{{format(currentTime)}}</span>
@@ -115,6 +120,7 @@ import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/scroll'
 
 const transform = prefixStyle('transform')
+const transitionDuration = prefixStyle('transitionDuration')
 
 export default {
     data() {
@@ -123,7 +129,8 @@ export default {
         currentTime:0,
         radius:32,
         currentLyric:null,
-        currentLineNum:0
+        currentLineNum:0,
+        currentShow:'cd' // 设置标点高亮
       }
     },
     computed: {
@@ -154,6 +161,10 @@ export default {
             'mode',
             'sequenceList'
         ])
+    },
+    created() {
+      // 初始化滑动属性
+      this.touch = {}
     },
     methods: {
       back() {
@@ -341,6 +352,70 @@ export default {
         }else{
           this.$refs.lyricList.scrollTo(0,0,1000)
         }
+      },
+      middleTouchStart(e) {
+        // 设置touch已经初始化过
+        this.touch.initiated = true
+        const touch = e.touches[0]
+        this.touch.startX = touch.pageX
+        this.touch.startY = touch.pageY
+      },
+      middleTouchMove(e) {
+        if(!this.touch.initiated){
+          return
+        }
+        const touch = e.touches[0]
+        const deltaX = touch.pageX - this.touch.startX
+        const deltaY = touch.pageY - this.touch.startY
+        // 纵向滑动大于横向滑动时不做响应
+        if(Math.abs(deltaY)>Math.abs(deltaX)){
+          return
+        }
+        // 使cd状态时在0位置，歌词的时候右移一屏幕
+        const left = this.currentShow === 'cd'?0:-window.innerWidth
+        // 从左向右或者从右向左滑动时候的偏移距离，且大于0 小于一屏幕宽
+        const offsetWidth = Math.min(0,Math.max(-window.innerWidth,left+deltaX))
+        // 滑动距离除以总宽度=滑动百分比
+        this.touch.percent = Math.abs(offsetWidth/window.innerWidth)
+       // 使用$el来获取组件的dom
+        this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
+        this.$refs.lyricList.$el.style[transitionDuration] = 0
+        this.$refs.middleL.style.opacity = 1-this.touch.percent
+        this.$refs.middleL.style[transitionDuration] = 0
+      },
+      middleTouchEnd() {
+        let offsetWidth
+        let opacity
+        // 当从cd转到歌词时
+        if(this.currentShow === 'cd') {
+          // 当滑动距离大于10%时 自动转到歌词页
+          if(this.touch.percent>0.1){
+            offsetWidth = -window.innerWidth
+            opacity = 0
+            //同时改变滑动当前状态
+            this.currentShow = 'lyric'
+          }else{
+            offsetWidth = 0
+            opacity = 1
+          }
+        }else {
+          // 当从歌词向cd滑动大于10% 也就是总滑动小于0.9时 回到cd
+           if(this.touch.percent<0.9){
+             offsetWidth = 0
+             this.currentShow = 'cd'
+             opacity = 1
+           }else {
+             offsetWidth = -window.innerWidth
+             opacity = 0
+           }
+        }
+        const time = 300
+        // 实际改变最终位置
+        this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
+        // 设置滑动时300毫秒的缓动
+        this.$refs.lyricList.$el.style[transitionDuration] = `${time}ms`
+        this.$refs.middleL.style.opacity = opacity
+        this.$refs.middleL.style[transitionDuration] = `${time}ms`
       },
       // mutation-types.js文件的映射 制造一个方法名来映射
       ...mapMutations({
