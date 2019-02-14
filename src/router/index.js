@@ -5,6 +5,7 @@ import Singer from 'components/singer/singer' // 歌手
 import Rank from 'components/rank/rank' // 排行
 import Search from 'components/search/search' // 搜索
 import SingerDetail from 'components/singer-detail/singer-detail' // 歌手详情
+import Disc from 'components/disc/disc'// 推荐页二级路由
 
 
 Vue.use(Router)
@@ -17,7 +18,13 @@ export default new Router({
     },
     {
       path: '/recommend',
-      component: Recommend
+      component: Recommend,
+      children:[
+        {
+          path:':id', // 路径为/recommend/:id
+          component:Disc
+        }
+      ]
     },
     {
       path: '/singer',

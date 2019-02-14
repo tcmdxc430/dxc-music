@@ -39,3 +39,24 @@ export function getDiscList() {
     
 
 }
+// 获取歌单歌曲数据，请求index中真实接口
+export function getSongList(disstid) {
+    const url = '/api/getSongList'
+    const data = Object.assign({},commonParams,{
+        disstid,
+        type: 1,
+        json: 1,
+        utf8: 1,
+        onlysong: 0,
+        needNewCode: 0,
+        hostUin: 0,
+        platform: 'yqq.json',
+        g_tk: 5381
+    })
+
+    return axios.get(url, {
+        params: data
+      }).then((res) => {
+        return Promise.resolve(res.data)
+    })
+}

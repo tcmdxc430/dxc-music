@@ -1,5 +1,5 @@
 // 准备修改state中数据
-// mutation-types中所有常量放到types集合中
+// mutation-types中所有常量放到types集合中 初始化vuex状态的step3
 import * as types from './mutation-types'
 
 const mutations = {
@@ -24,7 +24,10 @@ const mutations = {
     },
     [types.SET_CURRENT_INDEX](state,index) {
         state.currentIndex = index
-    }
+    },
+    [types.SET_DISC](state,disc) {
+        state.disc = disc
+    },
 }
 
 export default mutations

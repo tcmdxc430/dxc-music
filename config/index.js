@@ -41,6 +41,16 @@ module.exports = {
         pathRewrite: {
           '/api/lyric':''
         }
+      },
+      '/api/getSongList':{
+        target: 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg',
+        bypass: function(req,res,proxyOptions) {
+          req.headers.referer = 'https://c.y.qq.com/';
+          req.headers.host = 'c.y.qq.com';
+        },
+        pathRewrite: {
+          '/api/getSongList':''
+        }
       }
     },
 
