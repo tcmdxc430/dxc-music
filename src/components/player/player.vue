@@ -27,6 +27,10 @@
                 <img class="image" :src="currentSong.image">
               </div>
             </div>
+            <!-- cd页面下当前播放的一句歌词 -->
+            <div class="playing-lyric-wrapper">
+              <div class="playing-lyric">{{playingLyric}}</div>
+            </div>
           </div>
           <!-- 歌词 -->
           <scroll class="middle-r" ref="lyricList" :data="currentLyric&&currentLyric.lines">
@@ -130,7 +134,8 @@ export default {
         radius:32,
         currentLyric:null,
         currentLineNum:0,
-        currentShow:'cd' // 设置标点高亮
+        currentShow:'cd', // 设置标点高亮
+        playingLyric:'',// 当前播放的一句歌词
       }
     },
     computed: {
@@ -218,7 +223,14 @@ export default {
       },
       // 暂停/播放
       togglePlaying() {
+        if(!this.songReady){
+          return
+        }
         this.setPlayingState(!this.playing)
+        // 点击暂停时歌词也暂停
+        if(this.currentLyric) {
+          this.currentLyric.togglePlay()
+        }
       },
       // 做位移动画时，获取大小图标xy偏移量以及缩放变化
       getPosAndScale() {
@@ -248,20 +260,29 @@ export default {
       loop() {
           this.$refs.audio.currentTime = 0
           this.$refs.audio.play()
+          if(this.currentLyric) {
+            // 将歌词重置为0秒时
+            this.currentLyric.seek(0)
+          }
       },
       // 下一首
       next() {
         if(!this.songReady){
           return
         }
-        let index = this.currentIndex+1
-        if(index == this.playlist.length) {
-          index = 0
-        }
-        this.setCurrentIndex(index)
-        // 如果此时为暂停状态，重新获取一下按钮状态
-        if(!this.playing){
-          this.togglePlaying()
+        // 当列表中只有一首歌曲时，执行loop使歌曲变更为单曲循环
+        if(this.playlist.length == 1){
+          this.loop()
+        }else {
+          let index = this.currentIndex+1
+          if(index == this.playlist.length) {
+            index = 0
+          }
+          this.setCurrentIndex(index)
+          // 如果此时为暂停状态，重新获取一下按钮状态
+          if(!this.playing){
+            this.togglePlaying()
+          }
         }
         this.songReady = false
       },
@@ -270,13 +291,18 @@ export default {
         if(!this.songReady){
           return
         }
-        let index = this.currentIndex-1
-        if(index == -1) {
-          index = this.playlist.length-1
-        }
-        this.setCurrentIndex(index)
-        if(!this.playing){
-          this.togglePlaying()
+         // 当列表中只有一首歌曲时，执行loop使歌曲变更为单曲循环
+        if(this.playlist.length == 1){
+          this.loop()
+        }else{
+          let index = this.currentIndex-1
+          if(index == -1) {
+            index = this.playlist.length-1
+          }
+          this.setCurrentIndex(index)
+          if(!this.playing){
+            this.togglePlaying()
+          }
         }
         this.songReady = false
       },
@@ -305,9 +331,13 @@ export default {
       },
       // 修改拖动后歌曲的实际进度
       onProgressBarChange(percent) {
-        this.$refs.audio.currentTime = this.currentSong.duration*percent // audio.currentTime为可读写的audio标签属性
+        const currentTime = this.currentSong.duration*percent 
+        this.$refs.audio.currentTime = currentTime // audio.currentTime为可读写的audio标签属性
         if(!this.playing) {
           this.togglePlaying()
+        }
+        if(this.currentLyric) {
+          this.currentLyric.seek(currentTime*1000)
         }
       },
       // 每点击一次 更换一次循环模式
@@ -340,7 +370,11 @@ export default {
             // lyric-parser方法
             this.currentLyric.play()
           }
-          console.log(this.currentLyric)
+        }).catch(()=>{
+          // 当没有获取歌词时
+          this.currentLyric = null
+          this.playingLyric = ''
+          this.currentLineNum = 0
         })
       },
       handleLyric({lineNum,txt}){
@@ -352,10 +386,14 @@ export default {
         }else{
           this.$refs.lyricList.scrollTo(0,0,1000)
         }
+        // 当前播放的一句歌词
+        this.playingLyric = txt
       },
       middleTouchStart(e) {
         // 设置touch已经初始化过
         this.touch.initiated = true
+        // 用来判断是否是一次移动
+        this.touch.moved = false
         const touch = e.touches[0]
         this.touch.startX = touch.pageX
         this.touch.startY = touch.pageY
@@ -371,6 +409,9 @@ export default {
         if(Math.abs(deltaY)>Math.abs(deltaX)){
           return
         }
+        if (!this.touch.moved) {
+          this.touch.moved = true
+        }
         // 使cd状态时在0位置，歌词的时候右移一屏幕
         const left = this.currentShow === 'cd'?0:-window.innerWidth
         // 从左向右或者从右向左滑动时候的偏移距离，且大于0 小于一屏幕宽
@@ -384,6 +425,9 @@ export default {
         this.$refs.middleL.style[transitionDuration] = 0
       },
       middleTouchEnd() {
+        if (!this.touch.moved) {
+          return
+        }
         let offsetWidth
         let opacity
         // 当从cd转到歌词时
@@ -416,6 +460,7 @@ export default {
         this.$refs.lyricList.$el.style[transitionDuration] = `${time}ms`
         this.$refs.middleL.style.opacity = opacity
         this.$refs.middleL.style[transitionDuration] = `${time}ms`
+        this.touch.initiated = false
       },
       // mutation-types.js文件的映射 制造一个方法名来映射
       ...mapMutations({
@@ -432,11 +477,14 @@ export default {
         if(newSong.id == oldSong.id){
           return
         }
-        this.$nextTick(()=>{
+        if(this.currentLyric) {
+          this.currentLyric.stop()
+        }
+        setTimeout(()=>{
           this.$refs.audio.play()
           // 加载歌词
           this.getLyric()
-        })
+        },1000)
         
       },
       playing(newPlaying) {

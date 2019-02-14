@@ -1,6 +1,6 @@
 <!--  created by dongxc on 2018// -->
 <template>
-  <div class="recommend">
+  <div class="recommend" ref="recommend">
     <!-- 用discList数据撑开dom并刷新scroll -->
     <scroll ref="scroll" class="recommend-content" :data="discList">
       <div>
@@ -44,7 +44,9 @@ import Slider from 'base/slider/slider'
 import {getRecommend,getDiscList} from 'api/recommend'
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
+import {playListMixin} from 'common/js/mixin'
 export default {
+  mixins:[playListMixin],// 组件可以引入多个mixin
   data () {
     return {
       recommends: [],
@@ -85,7 +87,13 @@ export default {
         this.$refs.scroll.refresh()
         this.checkLoaded = true
       }
-      
+    },
+    handlePlayList(playlist) {
+      // 当播放列表中有音乐加入时 将底部高度设置为60px 预留出mini播放器的高度
+      const bottom = playlist.length>0?'60px':''
+      this.$refs.recommend.style.bottom = bottom
+      // 让bscroll重新计算高度
+      this.$refs.scroll.refresh()
     }
   },
   components: {

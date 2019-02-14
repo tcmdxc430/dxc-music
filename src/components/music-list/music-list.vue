@@ -34,11 +34,13 @@
  import {prefixStyle} from 'common/js/dom'
  import Loading from 'base/loading/loading'
  import {mapActions} from 'vuex'
+ import {playListMixin} from 'common/js/mixin'
  // 顶部留白
  const RESERVED_HEIGHT = 40
  const transform = prefixStyle('transform')
  const backdrop = prefixStyle('backdrop-filter')
  export default {
+     mixins:[playListMixin],// 组件可以引入多个mixin
      props: {
         bgImage: {
             type: String,
@@ -91,6 +93,14 @@
          this.randomPlay({
            list:this.songs
          })
+       },
+       handlePlayList(playlist) {
+         // 当播放列表中有音乐加入时 将底部高度设置为60px 预留出mini播放器的高度
+         const bottom = playlist.length>0?'60px':''
+         // 由于引用的是vue组件中的dom  需要用$el
+         this.$refs.list.$el.style.bottom = bottom
+         // 让bscroll重新计算高度
+         this.$refs.list.refresh()
        },
        // 引入vuex中action.js中的方法
        ...mapActions([

@@ -1,8 +1,8 @@
 <!--  created by dongxc on 2018// -->
 <template>
 <!-- 歌手tabs -->
-  <div class="singer">
-    <list-view @select="selectSinger" :data="singers"></list-view>
+  <div class="singer" ref="singer">
+    <list-view @select="selectSinger" :data="singers" ref="list"></list-view>
     <!-- 挂载子路由 -->
     <router-view></router-view>
   </div>
@@ -14,10 +14,12 @@ import {ERR_OK} from 'api/config'
 import Singer from 'common/js/singer'
 import ListView from 'base/listview/listview'
 import {mapMutations} from 'vuex'// vuex数据修改语法糖
+import {playListMixin} from 'common/js/mixin'
 
 const HOT_NAME = '热门'
 const HOT_SINGER_LEN = 10
 export default {
+  mixins:[playListMixin],// 组件可以引入多个mixin
   data () {
     return {
       singers: []
@@ -104,6 +106,13 @@ export default {
         return a.title.charCodeAt(0) - b.title.charCodeAt(0)
       })
       return hot.concat(ret)
+    },
+    handlePlayList(playlist) {
+      // 当播放列表中有音乐加入时 将底部高度设置为60px 预留出mini播放器的高度
+      const bottom = playlist.length>0?'60px':''
+      this.$refs.singer.style.bottom = bottom
+      // 让bscroll重新计算高度
+      this.$refs.list.refresh()
     },
     // ...扩展运算符
     ...mapMutations({
