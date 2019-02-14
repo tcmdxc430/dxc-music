@@ -71,12 +71,12 @@ export default {
                 
                 getMusic(musicData.songmid).then((res) => {
                     if(res.code === 0) {
-                        // console.log(res)
+                        console.log(res)
                         const svkey = res.data.items
                         const songVkey = svkey[0].vkey
                         const newSong = createSong(musicData,songVkey)
                         ret.push(newSong)
-                    }7
+                    }
                 })
               }
           })
