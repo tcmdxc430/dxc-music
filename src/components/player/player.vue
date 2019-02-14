@@ -315,11 +315,9 @@ export default {
       },
       // 获取当前播放时间
       updateTime(e) {
-        console.log(e)
         this.currentTime = e.target.currentTime
       },
       format(interval) {
-        console.log(this.currentSong)
         // 向下取整 相当于math.floor
         interval = interval|0
         const minute = interval/60|0
@@ -359,11 +357,11 @@ export default {
         let index = list.findIndex((item)=>{
           return item.id == this.currentSong.id
         })
-        console.log(index)
         this.setCurrentIndex(index)
       },
-      getLyric() {  
+      getLyric() {
         this.currentSong.getLyric().then((lyric)=>{
+          console.log('getLyric')
           // 歌词行变更时 回调handleLyric
           this.currentLyric = new Lyric(lyric,this.handleLyric)
           if(this.playing) {
