@@ -33,6 +33,7 @@ import {ERR_OK} from 'api/config'
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
 import {playListMixin} from 'common/js/mixin'
+import {mapMutations} from 'vuex'
 
 export default {
   mixins:[playListMixin],// 组件可以引入多个mixin
@@ -59,7 +60,19 @@ export default {
       this.$refs.rank.style.bottom = bottom
       // 让bscroll重新计算高度
       this.$refs.toplist.refresh()
-    }
+    },
+    // 跳转二级路由
+    selectItem(item) {
+      this.$router.push({
+        path:`/rank/${item.id}`
+      })
+      // 传入mutation中更新toplist对象数据
+      this.setTopList(item)
+    },
+    // 注册mapMutations来发送，对应mutation.js中的type.SET_DISC
+    ...mapMutations({
+      setTopList:'SET_TOP_LIST'
+    })
   },
   components:{
     Scroll,

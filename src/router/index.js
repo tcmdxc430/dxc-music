@@ -6,6 +6,7 @@ import Rank from 'components/rank/rank' // 排行
 import Search from 'components/search/search' // 搜索
 import SingerDetail from 'components/singer-detail/singer-detail' // 歌手详情
 import Disc from 'components/disc/disc'// 推荐页二级路由
+import TopList from 'components/top-list/top-list'//排行详情耳机路由
 
 
 Vue.use(Router)
@@ -40,7 +41,15 @@ export default new Router({
     },
     {
       path: '/rank',
-      component: Rank
+      component: Rank,
+      // 子路由
+      children: [
+        {
+          // 主路由加id参数跳转不同页面
+          path: ':id',
+          component: TopList
+        }
+      ]
     },
     {
       path: '/search',
