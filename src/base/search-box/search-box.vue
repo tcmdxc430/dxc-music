@@ -28,6 +28,10 @@
       methods: {
           clear() {
               this.query = ''
+          },
+          // 将父组件传入的query填入
+          setQuery(query){
+              this.query = query
           }
       },
   }

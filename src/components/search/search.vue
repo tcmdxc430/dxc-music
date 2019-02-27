@@ -1,27 +1,54 @@
 <!--  created by dongxc on 2019/2/27 -->
 <template>
   <div class="search">
+    <!-- 搜索框 -->
     <div class="search-box-wrapper">
-      <search-box></search-box>
+      <search-box ref="searchBox"></search-box>
+    </div>
+    <!-- 热门列表 -->
+    <div class="shortcut-wrapper">
+      <div class="shortcut">
+        <div class="hot-key">
+          <h1 class="title">热门</h1>
+          <ul>
+            <li @click="addQuery(item.k)" class="item" v-for="item in hotKey">
+              <span>{{item.k}}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script type='text/ecmascript-6'>
 import SearchBox from 'base/search-box/search-box'
+import {getHotKey} from 'api/search'
+import {ERR_OK} from 'api/config'
 export default {
   data () {
     return {
+      hotKey:[]
     };
   },
-
-  
-
-  computed: {},
-
-  mounted: {},
-
-  methods: {},
+  created() {
+    // 获取接口数据
+    this._getHotKey()
+  },
+  methods: {
+    _getHotKey(){
+      getHotKey().then((res)=>{
+        if(res.code === ERR_OK){
+          // 截取数组前十条
+          this.hotKey = res.data.hotkey.slice(0,10)
+        }
+      })
+    },
+    addQuery(query){
+      // 父组件传入子组件的第二种方法，调用子组件方法 传入父组件参数
+      this.$refs.searchBox.setQuery(query)
+    }
+  },
   components: {
     SearchBox
   }
