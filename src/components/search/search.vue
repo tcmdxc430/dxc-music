@@ -3,10 +3,11 @@
   <div class="search">
     <!-- 搜索框 -->
     <div class="search-box-wrapper">
-      <search-box ref="searchBox"></search-box>
+      <!-- 通过onQueryChange方法接收到子组件广播的query -->
+      <search-box ref="searchBox" @query="onQueryChange"></search-box>
     </div>
-    <!-- 热门列表 -->
-    <div class="shortcut-wrapper">
+    <!-- 没有搜索文时展示 热门列表 -->
+    <div class="shortcut-wrapper" v-show="!query">
       <div class="shortcut">
         <div class="hot-key">
           <h1 class="title">热门</h1>
@@ -18,6 +19,10 @@
         </div>
       </div>
     </div>
+    <!-- 搜索出的结果 -->
+    <div class="search-result" v-show="query">
+      <suggest :query="query"></suggest>
+    </div>
   </div>
 </template>
 
@@ -25,10 +30,12 @@
 import SearchBox from 'base/search-box/search-box'
 import {getHotKey} from 'api/search'
 import {ERR_OK} from 'api/config'
+import Suggest from 'components/suggest/suggest'
 export default {
   data () {
     return {
-      hotKey:[]
+      hotKey:[],
+      query:''
     };
   },
   created() {
@@ -47,10 +54,14 @@ export default {
     addQuery(query){
       // 父组件传入子组件的第二种方法，调用子组件方法 传入父组件参数
       this.$refs.searchBox.setQuery(query)
+    },
+    onQueryChange(query){
+      this.query = query
     }
   },
   components: {
-    SearchBox
+    SearchBox,
+    Suggest
   }
 }
 

@@ -10,3 +10,26 @@ export function getHotKey() {
     })
     return jsonp(url,data,options)
 }
+
+export function search(query,page,zhida) {
+    // const url = 'http://ustbhuangyi.com/music/api/search'
+    const url = 'https://c.y.qq.com/soso/fcgi-bin/client_search_cp'
+    const data = Object.assign({},commonParams,{
+        w:query,
+        p:page,
+        catZhida: zhida?1:0,
+        t: 0,
+        flag_qc: 0,
+        aggr: 1,
+        cr: 1,
+        n: 20,
+        remoteplace: 'txt.yqq.song',
+        g_tk: 5381,
+        loginUin: 0,
+        hostUin: 0,
+        needNewCode: 0,
+        platform: 'yqq.json',
+        format: 'jsonp'
+    })
+    return jsonp(url,data,options)
+}
