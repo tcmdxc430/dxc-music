@@ -2,6 +2,10 @@
   <div class="song-list">
     <ul>
       <li @click="selectItem(song,index)" v-for="(song,index) in songs" class="item">
+          <!-- 排行榜图标展示 -->
+          <div class="rank" v-show="rank">
+            <span :class="getRankCls(index)">{{getRankText(index)}}</span>
+          </div>
           <div class="content">
               <!-- 歌名 -->
               <h2 class="name">{{song.name}}</h2>
@@ -19,6 +23,12 @@
             songs:{
                 type: Array,
                 default: []
+            },
+            // 排名图标是否显示
+            // 接收父组件music-list传来的rank
+            rank:{
+              type:Boolean,
+              default:false
             }
         },
         methods: {
@@ -28,6 +38,18 @@
             },
             getDesc(song) {
                 return `${song.singer}-${song.album}`
+            },
+            getRankCls(index) {
+              if(index <= 2){
+                return `icon icon${index}`
+              }else{ 
+                return `text`
+              }
+            },
+            getRankText(index) {
+              if(index>2) {
+                return index+1
+              }
             }
         }
     }
@@ -54,15 +76,15 @@
           width: 25px
           height: 24px
           background-size: 25px 24px
-        //   &.icon0
-        //     bg-image('first')
-        //   &.icon1
-        //     bg-image('second')
-        //   &.icon2
-        //     bg-image('third')
-        // .text
-        //   color: $color-theme
-        //   font-size: $font-size-large
+          &.icon0
+            bg-image('first')
+          &.icon1
+            bg-image('second')
+          &.icon2
+            bg-image('third')
+        .text
+          color: $color-theme
+          font-size: $font-size-large
       .content
         flex: 1
         line-height: 20px
