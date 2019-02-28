@@ -1,5 +1,6 @@
 <template>
-  <scroll ref="suggest" class="suggest">
+    <!-- 监听到scroll组件派发的scrollToEnd时调用searchMore -->
+  <scroll ref="suggest" class="suggest" :data="result" :pullup="pullup" @scrollToEnd="searchMore">
     <ul class="suggest-list">
       <li @click="selectItem(item)" class="suggest-item" v-for="item in result">
         <div class="icon">
@@ -9,7 +10,7 @@
           <p class="text" v-html="getDisplayName(item)"></p>
         </div>
       </li>
-      <loading v-show="" title=""></loading>
+      <loading v-show="hasMore" title=""></loading>
     </ul>
     <div class="no-result-wrapper">
      
@@ -22,9 +23,13 @@
   import Loading from 'base/loading/loading'
   import {ERR_OK} from 'api/config'
   import {search} from 'api/search'
-  import {filterSinger} from 'common/js/song'
+//   import {filterSinger} from 'common/js/song'
+  import {getMusic} from 'api/song'
+  import {createSong} from 'common/js/song'
   
   const TYPE_SINGER = 'singer'
+  // 每页请求数据量
+  const perpage = 20
   export default {
     props:{
         query:{
@@ -39,15 +44,42 @@
     data() {
         return {
             page:1,
-            result:[]
+            result:[],
+            pullup:true,
+            hasMore:true
         }
     },
     methods: {
         // 调接口
         search(){
-            search(this.query,this.page,this.showSinger).then((res)=>{
+            // 初始化页码
+            this.page = 1
+            this.hasMore = true
+            this.$refs.suggest.scrollTo(0,0)
+            search(this.query,this.page,this.showSinger,perpage).then((res)=>{
                 if(res.code === ERR_OK){
                     this.result = this._genResult(res.data)
+                    this._checkMore(res.data)
+                }
+            })
+        },
+        _checkMore(data) {
+            const song = data.song
+            // 判断到最后一页
+            if(!song.list.length || (song.curnum+song.curpage*perpage)>=song.totalnum){
+                this.hasMore = false
+            }
+        },
+        // 分页加载
+        searchMore(){
+            if(!this.hasMore){
+                return
+            }
+            this.page++
+            search(this.query,this.page,this.showSinger,perpage).then((res)=>{
+                if(res.code === ERR_OK){
+                    this.result = this.result.concat(this._genResult(res.data))
+                    this._checkMore(res.data)
                 }
             })
         },
@@ -63,20 +95,38 @@
             if(item.type === TYPE_SINGER){
                 return item.singername
             }else{
-                return `${item.songname}-${filterSinger(item.singer)}`
+                return `${item.name}-${item.singer}`
             }
                 
         },
         _genResult(data){
             let ret = []
-            //如果有可以搜索歌手
+            //如果可以搜索歌手
             if(data.zhida&&data.zhida.singerid){
                 // 将data.zhida拷贝到...标识的空对象里
                 ret.push({...data.zhida,...{type:TYPE_SINGER}})
             }
             if(data.song){
-                ret = ret.concat(data.song.list)
+                ret = ret.concat(this._normalizeSongs(data.song.list))
             }
+            return ret
+        },
+        _normalizeSongs(list) {
+            let ret = []
+            list.forEach((musicData) => {
+                if(musicData.songid && musicData.albumid){
+                //     getMusic(musicData.songmid).then((res) => {
+                //     if(res.code === 0) {
+                //         console.log(res)
+                //         const svkey = res.data.items
+                //         const songVkey = svkey[0].vkey
+                //         const newSong = createSong(musicData,songVkey)
+                //         ret.push(newSong)
+                //     }
+                // })
+                ret.push(createSong(musicData))
+                }
+            })
             return ret
         }
     },
@@ -86,6 +136,10 @@
             this.search()
         }
     },
+    components:{
+        Scroll,
+        Loading
+    }
   }
 </script>
 

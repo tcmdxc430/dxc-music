@@ -32,6 +32,11 @@ export default {
       listenScroll: {
           type: Boolean,
           defalut: false
+      },
+      // 是否需要上拉加载
+      pullup:{
+          type: Boolean,
+          defalut: false
       }
   },  
   components: {},
@@ -59,6 +64,19 @@ export default {
               let me = this
               this.scroll.on('scroll',(pos) => {
                   me.$emit('scroll',pos)
+              })
+          }
+
+          if(this.pullup){
+            //   监听滚动停止
+              this.scroll.on('scrollEnd',()=>{
+                  console.log(this.scroll.y)
+                  console.log(this.scroll.maxScrollY)
+                  // 上拉所以是负数比较，表示距离超出底部50px时
+                  if(this.scroll.y<=(this.scroll.maxScrollY+50)){
+                    //   滚动到底部
+                      this.$emit('scrollToEnd')
+                  }
               })
           }
       },

@@ -11,7 +11,7 @@ export function getHotKey() {
     return jsonp(url,data,options)
 }
 
-export function search(query,page,zhida) {
+export function search(query,page,zhida,perpage) {
     // const url = 'http://ustbhuangyi.com/music/api/search'
     const url = 'https://c.y.qq.com/soso/fcgi-bin/client_search_cp'
     const data = Object.assign({},commonParams,{
@@ -22,7 +22,7 @@ export function search(query,page,zhida) {
         flag_qc: 0,
         aggr: 1,
         cr: 1,
-        n: 20,
+        n: perpage,
         remoteplace: 'txt.yqq.song',
         g_tk: 5381,
         loginUin: 0,
