@@ -69,7 +69,6 @@
                     this._genResult(res.data)
                     setTimeout(() => {
                        this.result = this.ret2
-                    console.log(this.result) 
                     }, 1800);
                     
                     this._checkMore(res.data)
@@ -95,7 +94,6 @@
                     this._genResult(res.data)
                     setTimeout(() => {
                         this.result = this.result.concat(this.ret2)
-                        console.log(this.ret2)
                     }, 1800);
                     
                     
@@ -112,7 +110,6 @@
             }
         },
         getDisplayName(item){
-            console.log(item)
             if(item.type === TYPE_SINGER){
                 return item.singerName
             }else{
@@ -163,20 +160,15 @@
                 if(musicData.songid && musicData.albumid){
                     getMusic(musicData.songmid).then((res) => {
                     if(res.code === 0) {
-                        // console.log(res)
                         const svkey = res.data.items
                         const songVkey = svkey[0].vkey
                         this.ret.push(createSong(musicData,songVkey))
                     }
                 })
                 // ret.push(createSong(musicData))
-                }
-                
+                } 
             })
-            // console.log(this.ret)
-      
-            //    return this.ret
-            
+            //    return this.ret 
             
         },
         
