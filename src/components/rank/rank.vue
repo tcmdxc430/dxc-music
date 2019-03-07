@@ -69,7 +69,7 @@ export default {
       // 传入mutation中更新toplist对象数据
       this.setTopList(item)
     },
-    // 注册mapMutations来发送，对应mutation.js中的type.SET_DISC
+    // 注册mapMutations setTopList来发送，对应mutation.js中的type.SET_DISC
     ...mapMutations({
       setTopList:'SET_TOP_LIST'
     })

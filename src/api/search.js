@@ -31,5 +31,25 @@ export function search(query,page,zhida,perpage) {
         platform: 'yqq.json',
         format: 'jsonp'
     })
+    // const data = Object.assign({},commonParams,{
+    //     w:query,
+    //     p:page,
+    //     catZhida: zhida?1:0,
+    //     zhidaqu:1,
+    //     t: 0,
+    //     flag: 1,
+    //     aggr: 0,
+    //     cr: 1,
+    //     ie:'utf-8',
+    //     sem:1,
+    //     n: perpage,
+    //     uin:0,
+    //     perpage:perpage,
+    //     remoteplace: 'txt.mqq.all',
+    //     g_tk: 1928093487,
+    //     needNewCode: 1,
+    //     platform: 'h5',
+    //     format: 'jsonp'
+    // })
     return jsonp(url,data,options)
 }

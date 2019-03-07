@@ -1,14 +1,14 @@
-// 异步修改state  封装mutation调用一个action修改多个mutation
+// 异步修改state  封装mutation集合,调用一个action修改多个mutation
 import * as types from './mutation-types'
 import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/util'
-
+// 查找list列表中有没有传入歌曲song 如果有返回索引
 function findIndex(list,song) {
     return list.findIndex((item)=>{
         return item.id === song.id
     })
 }
-
+// action.js中默认传入context{dispatch: local.dispatch,commit: local.commit,getters: local.getters,state: local.state,rootGetters: store.getters,rootState: store.state }
 export const selectPlay = function({commit,state},{list,index}) {
     commit(types.SET_SEQUENCE_LIST,list)
     if(state.mode == playMode.random){
@@ -30,6 +30,52 @@ export const randomPlay = function({commit},{list}){
     let randomList = shuffle(list)
     commit(types.SET_PLAYLIST,randomList)
     commit(types.SET_CURRENT_INDEX,0)
+    commit(types.SET_FULL_SCREEN,true)
+    commit(types.SET_PLAYING_STATE,true)
+}
+export const insertSong = function({commit,state},song){
+    // slice返回一个克隆对象
+    let playlist = state.playlist.slice()
+    let sequenceList = state.sequenceList.slice()
+    let currentIndex = state.currentIndex
+    // 记录当前播放歌曲
+    let currentSong = playlist[currentIndex]
+    // find playlist查找插入的歌曲在列表中是否存在
+    let fpIndex = findIndex(playlist,song)
+    // 插入在当前歌曲索引的下一个
+    currentIndex++
+    // 插入歌曲 splice(位置,0添加正数删除数,如果有为添加目标)
+    playlist.splice(currentIndex,0,song)
+    // 已经存在 就要先删掉已存在的歌曲
+    if(fpIndex>-1){
+        // 如果当前插入序号在原有序号之后
+        if(currentIndex>fpIndex){
+            // 删除的原歌曲索引
+            playlist.splice(fpIndex,1)
+            currentIndex--
+        // 如果当前插入序号在原有序号之前
+        }else{
+            // 依然删除原歌曲
+            playlist.splice(fpIndex+1,1)
+        }
+    }
+    // 播放队列中song要插入的位置
+    let currentSIndex = findIndex(sequenceList,currentSong)+1
+    // 判断原队列中是否有song
+    let fsIndex = findIndex(sequenceList,song)
+    sequenceList.splice(currentSIndex,0,song)
+    // 如果原来队列中有song
+    if(fsIndex>-1){
+        // 如果当前插入序号在原有队列序号之后
+        if(currentSIndex>fsIndex){
+            sequenceList.splice(fsIndex,1)
+        }else{
+            sequenceList.splice(fsIndex+1,1)
+        }
+    }
+    commit(types.SET_PLAYLIST,playlist)
+    commit(types.SET_SEQUENCE_LIST,sequenceList)
+    commit(types.SET_CURRENT_INDEX,currentIndex)
     commit(types.SET_FULL_SCREEN,true)
     commit(types.SET_PLAYING_STATE,true)
 }

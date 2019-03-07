@@ -7,6 +7,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+import {debounce} from 'common/js/util'
   export default{
       props:{
           placeholder:{
@@ -20,10 +21,10 @@
           }
       },
       created() {
-          // 等同于watcher
-          this.$watch('query',(newQuery)=>{
+          // 等同于watcher debounce节流函数
+          this.$watch('query',debounce((newQuery)=>{
               this.$emit('query',newQuery)
-          })
+          },200))
       },
       methods: {
           clear() {
@@ -32,6 +33,10 @@
           // 将父组件传入的query填入
           setQuery(query){
               this.query = query
+          },
+          // 输入框失去焦点
+          blur(){
+              this.$refs.query.blur()
           }
       },
   }

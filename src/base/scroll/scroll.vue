@@ -37,6 +37,11 @@ export default {
       pullup:{
           type: Boolean,
           defalut: false
+      },
+      // 滚动开始时派发beforeScroll
+      beforeScroll:{
+          type:Boolean,
+          defalut:false
       }
   },  
   components: {},
@@ -77,6 +82,12 @@ export default {
                     //   滚动到底部
                       this.$emit('scrollToEnd')
                   }
+              })
+          }
+
+          if(this.beforeScroll){
+              this.scroll.on('beforeScrollStart',()=>{
+                  this.$emit('beforeScroll')
               })
           }
       },

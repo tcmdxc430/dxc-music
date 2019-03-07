@@ -21,8 +21,9 @@
     </div>
     <!-- 搜索出的结果 -->
     <div class="search-result" v-show="query">
-      <suggest :query="query"></suggest>
+      <suggest @listScroll="blurInput" :query="query"></suggest>
     </div>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -57,6 +58,10 @@ export default {
     },
     onQueryChange(query){
       this.query = query
+    },
+    // 在产生滚动时 让input失去焦点
+    blurInput(){
+      this.$refs.searchBox.blur()
     }
   },
   components: {

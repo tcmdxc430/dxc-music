@@ -1,6 +1,6 @@
 <template>
     <!-- 监听到scroll组件派发的scrollToEnd时调用searchMore -->
-  <scroll ref="suggest" class="suggest" :data="result" :pullup="pullup" @scrollToEnd="searchMore" :beforeScroll="beforeScroll" @beforeScroll="listScroll">
+  <scroll ref="suggest" class="suggest" :data="result" :pullup="pullup" @scrollToEnd="searchMore">
     <ul class="suggest-list">
       <li @click="selectItem(item)" class="suggest-item" v-for="item in result">
         <div class="icon">
@@ -12,10 +12,8 @@
       </li>
       <loading v-show="hasMore" title=""></loading>
     </ul>
-    <!-- 无数据时展示 -->
     <div class="no-result-wrapper">
-        <!-- 写死数据不加冒号 -->
-     <no-result v-show="!hasMore&& !result.length" title="没有索索结果"></no-result>
+     
     </div>
   </scroll>
 </template>
@@ -29,8 +27,7 @@
   import {getMusic} from 'api/song'
   import {createSong} from 'common/js/song'
   import Singer from 'common/js/singer'
-  import {mapMutations,mapActions} from 'vuex'
-  import NoResult from 'base/no-result/no-result'
+  import {mapMutations,mapActions} from 'vuex';
   
   const TYPE_SINGER = 'singer'
   // 每页请求数据量
@@ -51,10 +48,7 @@
             page:1,
             result:[],
             pullup:true,
-            hasMore:true,
-            ret:[],
-            ret2:[],
-            beforeScroll:true
+            hasMore:true
         }
     },
     methods: {
@@ -66,12 +60,8 @@
             this.$refs.suggest.scrollTo(0,0)
             search(this.query,this.page,this.showSinger,perpage).then((res)=>{
                 if(res.code === ERR_OK){
-                    this._genResult(res.data)
-                    setTimeout(() => {
-                       this.result = this.ret2
-                    console.log(this.result) 
-                    }, 1800);
-                    
+                    this.result = this._genResult(res.data)
+                    console.log(this.result)
                     this._checkMore(res.data)
                 }
             })
@@ -89,15 +79,10 @@
                 return
             }
             this.page++
-            // this.showSinger = false
             search(this.query,this.page,this.showSinger,perpage).then((res)=>{
                 if(res.code === ERR_OK){
-                    this._genResult(res.data)
-                    setTimeout(() => {
-                        this.result = this.result.concat(this.ret2)
-                        console.log(this.ret2)
-                    }, 1800);
                     
+                    this.result = this.result.concat(this._genResult(res.data))
                     
                     this._checkMore(res.data)
                 }
@@ -120,9 +105,6 @@
             }
                 
         },
-        listScroll(){
-            this.$emit('listScroll')
-        },
         selectItem(item){
             if(item.type === TYPE_SINGER){
                 const singer = new Singer({
@@ -139,47 +121,64 @@
             }
         },
         _genResult(data){
-            // let ret = []
-            this.ret2 = []
+            let ret = []
             //如果可以搜索歌手
-            if(data.zhida&&data.zhida.zhida_singer&&data.semantic.curpage === 1){
+            if(data.zhida&&data.zhida.zhida_singer.singerID){
                 // 将data.zhida拷贝到...标识的空对象里
-                this.ret2.push({...data.zhida.zhida_singer,...{type:TYPE_SINGER}})
+                ret.push({...data.zhida.zhida_singer,...{type:TYPE_SINGER}})
             }
             if(data.song){
-                this._normalizeSongs(data.song.list)
-                setTimeout(() => {
-                    this.ret2 = this.ret2.concat(this.ret)
-                    console.log(this.ret2) 
-                }, 1800);
+                ret = ret.concat(this._normalizeSongs(data.song.list))
+            //     let rr = []
+            //     data.song.list.forEach((musicData) => {
+            //     if(musicData.songid && musicData.albumid){
+            //         getMusic(musicData.songmid).then((res) => {
+            //         if(res.code === 0) {
+            //             // console.log(res)
+            //             const svkey = res.data.items
+            //             const songVkey = svkey[0].vkey
+            //              this.$nextTick(()=>{
+            //                 rr.push(createSong(musicData,songVkey))
+            //                 })
+                        
+            //             // ret = ret.concat(rr)
+            //         }
+            //     })
+            //     // ret.push(createSong(musicData))
+            //     }
                 
-            }
+            // })
+            //    console.log(rr) 
             
+            // setTimeout(() => {
+                
+            //     console.log(rr)
+            //     ret = ret.concat(rr)
+            //     console.log(ret)
+            // }, 1000);
+            }
+            return ret
         },
         _normalizeSongs(list) {
-            // let ret = []
-            this.ret = []
+            let ret = []
             list.forEach((musicData) => {
                 if(musicData.songid && musicData.albumid){
-                    getMusic(musicData.songmid).then((res) => {
-                    if(res.code === 0) {
-                        // console.log(res)
-                        const svkey = res.data.items
-                        const songVkey = svkey[0].vkey
-                        this.ret.push(createSong(musicData,songVkey))
-                    }
-                })
-                // ret.push(createSong(musicData))
+                //     getMusic(musicData.songmid).then((res) => {
+                //     if(res.code === 0) {
+                //         // console.log(res)
+                //         const svkey = res.data.items
+                //         const songVkey = svkey[0].vkey
+                //         ret.push(createSong(musicData,songVkey))
+                //     }
+                // })
+                ret.push(createSong(musicData))
                 }
                 
             })
-            // console.log(this.ret)
-      
-            //    return this.ret
+               return ret
             
             
         },
-        
         // 注册mapMutations setSinger来发送，对应mutation.js中的type.SET_SINGER
         ...mapMutations({
             setSinger:'SET_SINGER'
@@ -196,8 +195,7 @@
     },
     components:{
         Scroll,
-        Loading,
-        NoResult
+        Loading
     }
   }
 </script>
