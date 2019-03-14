@@ -26,10 +26,19 @@ function insertArray(arr, val,compare,maxLen){
         arr.pop()
     }
 }
+// 通用方法：从数组中删除一个
+function deleteFromArray(arr,compare){
+    // 查找arr数组中是否有这个字段，并返回位置，传入一个function，compare
+    const index = arr.findIndex(compare)
+    if(index>-1){
+        arr.splice(index,1)
+    }
+}
 
 export function saveSearch(query) {
     // 获取现有历史列表，如果没有返回[]
     let searches = storage.get(SEARCH_KEY,[])
+    // 列表中每一个值和query进行比较
     insertArray(searches,query,(item)=>{
         console.log(item)
         console.log(query)
@@ -44,4 +53,21 @@ export function saveSearch(query) {
 export function loadSearch(){
     // 如果没有设为空
     return storage.get(SEARCH_KEY,[])
+}
+
+// 删除指定历史记录方法
+export function deleteSearch(query){
+    // 获取现有历史列表，如果没有返回[]
+    let searches = storage.get(SEARCH_KEY,[])
+    deleteFromArray(searches,(item)=>{
+        return item === query
+    })
+    // 存储生成的searches
+    storage.set(SEARCH_KEY,searches)
+    return searches
+}
+// 删除全部搜索记录
+export function clearSearch(){
+    storage.remove(SEARCH_KEY)
+    return []
 }

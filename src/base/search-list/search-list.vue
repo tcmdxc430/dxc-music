@@ -2,9 +2,9 @@
 <template>
 <!-- 搜索历史列表 -->
   <div class="search-list" v-show="searches.length">
-      <li class="search-item" v-for="item in searches">
+      <li @click="selectItem(item)" class="search-item" v-for="item in searches">
         <span class="text">{{item}}</span>
-        <span class="icon">
+        <span class="icon" @click.stop="deleteOne(item)">
           <i class="icon-delete"></i>
         </span>
       </li>
@@ -20,7 +20,14 @@
       }
     },
     methods: {
-      
+        //触发点击
+      selectItem(item){
+          this.$emit('select',item)
+      },
+      // 触发删除
+      deleteOne(item){
+          this.$emit('delete',item)
+      }
     }
   }
 </script>

@@ -7,31 +7,33 @@
       <search-box ref="searchBox" @query="onQueryChange"></search-box>
     </div>
     <!-- 没有搜索文时展示 热门列表 -->
-    <div class="shortcut-wrapper" v-show="!query">
-      <div class="shortcut">
-        <div class="hot-key">
-          <h1 class="title">热门</h1>
-          <ul>
-            <li @click="addQuery(item.k)" class="item" v-for="item in hotKey">
-              <span>{{item.k}}</span>
-            </li>
-          </ul>
-        </div>
-        <!-- 搜索历史 -->
-        <div class="search-history" v-show="searchHistory.length">
-          <h1 class="title">
-            <span class="text">搜索历史</span>
-            <span class="clear">
-              <i class="icon-clear"></i>
-            </span>
-          </h1>
-          <!-- 历史列表 -->
-          <search-list :searches="searchHistory"></search-list>
+    <div ref="shortcutWrapper" class="shortcut-wrapper" v-show="!query">
+      <div ref="shortcut" class="shortcut">
+        <div>
+          <div class="hot-key">
+            <h1 class="title">热门</h1>
+            <ul>
+              <li @click="addQuery(item.k)" class="item" v-for="item in hotKey">
+                <span>{{item.k}}</span>
+              </li>
+            </ul>
+          </div>
+          <!-- 搜索历史 -->
+          <div class="search-history" v-show="searchHistory.length">
+            <h1 class="title">
+              <span class="text">搜索历史</span>
+              <span class="clear" @click="deleteAll">
+                <i class="icon-clear"></i>
+              </span>
+            </h1>
+            <!-- 历史列表 -->
+            <search-list @select="addQuery" @delete="deleteOne" :searches="searchHistory"></search-list>
+          </div>
         </div>
       </div>
     </div>
     <!-- 搜索出的结果 -->
-    <div class="search-result" v-show="query">
+    <div ref="searchResult" class="search-result" v-show="query">
       <suggest @select="saveSearch" @listScroll="blurInput" :query="query"></suggest>
     </div>
     <router-view></router-view>
@@ -45,7 +47,9 @@ import {ERR_OK} from 'api/config'
 import Suggest from 'components/suggest/suggest'
 import {mapActions,mapGetters} from 'vuex'
 import SearchList from 'base/search-list/search-list'
+// import {playlistMixin} from 'common/js/mixin'
 export default {
+  // mixins:[playlistMixin],
   data () {
     return {
       hotKey:[],
@@ -63,6 +67,11 @@ export default {
     ])
   },
   methods: {
+    // handlePlaylist(playlist){
+    //   const bottom = playlist.length>0?'60px':''
+    //   this.$refs.shortcutWrapper.style.bottom = bottom
+    //   this.$refs.SearchResult.style.bottom = bottom
+    // },
     _getHotKey(){
       getHotKey().then((res)=>{
         if(res.code === ERR_OK){
@@ -86,8 +95,18 @@ export default {
     saveSearch(){
       this.saveSearchHistory(this.query)
     },
+    // 删除指定搜索记录
+    deleteOne(item){
+      this.deleteSearchHistory(item)
+    },
+    // 删除全部搜索记录
+    deleteAll(){
+      this.clearSearchHistory()
+    },
     ...mapActions([
-      'saveSearchHistory'
+      'saveSearchHistory',
+      'deleteSearchHistory',
+      'clearSearchHistory'
     ])
   },
   components: {
