@@ -134,6 +134,8 @@
             }else{
                 this.insertSong(item)
             }
+            // 派发给父组search.vue件保存搜索历史
+            this.$emit('select')
         },
         _genResult(data){
             // let ret = []

@@ -1,4 +1,4 @@
-// 获取state中数据 state中数据映射 初始化vuex状态的step4
+// 取出state中数据 state中数据映射 初始化vuex状态的step4
 // state() return state.singer
 export const singer = state => state.singer
 
@@ -16,3 +16,4 @@ export const currentSong = (state) => {
   }
 export const disc = state => state.disc
 export const topList = state => state.topList
+export const searchHistory = state => state.searchHistory

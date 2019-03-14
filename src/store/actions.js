@@ -2,6 +2,7 @@
 import * as types from './mutation-types'
 import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/util'
+import {saveSearch} from 'common/js/cache'
 // 查找list列表中有没有传入歌曲song 如果有返回索引
 function findIndex(list,song) {
     return list.findIndex((item)=>{
@@ -78,4 +79,9 @@ export const insertSong = function({commit,state},song){
     commit(types.SET_CURRENT_INDEX,currentIndex)
     commit(types.SET_FULL_SCREEN,true)
     commit(types.SET_PLAYING_STATE,true)
+}
+
+export const saveSearchHistory = function({commit},query){
+    // 把新列表提交到types.SET_SEARCH_HISTORY更新
+    commit(types.SET_SEARCH_HISTORY,saveSearch(query))
 }
