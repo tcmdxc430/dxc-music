@@ -101,7 +101,7 @@
           </progress-circle>
         </div>
         <!-- 歌曲列表展开按钮 -->
-        <div class="control" @click="showPlaylsit">
+        <div class="control" @click.stop="showPlaylsit">
           <i class="icon-playlist"></i>
         </div>
       </div>

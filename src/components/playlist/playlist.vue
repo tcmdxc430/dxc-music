@@ -13,7 +13,7 @@
         <!-- 列表  -->
         <scroll ref="listContent" :data="sequenceList" class="list-content" >
           <ul >
-            <li  class="item" v-for="(item,index) in sequenceList" @click="selectItem(item,index)">
+            <li  class="item" ref="listItem" v-for="(item,index) in sequenceList" @click="selectItem(item,index)">
               <i class="current" :class="getCurrentIcon(item)"></i>
               <span class="text">{{item.name}}</span>
               <span class="like">
@@ -69,6 +69,7 @@
         // 从隐藏到显示重新计算高度
         setTimeout(() => {
           this.$refs.listContent.refresh()
+          this.scrollToCurrent(this.currentSong)
         }, 20);
       },
       hide() {
@@ -82,17 +83,35 @@
       },
       selectItem(item,index){
         if(this.mode == playMode.random) {
-          // 寻找和item.id相同song.id
+          // 查找点击的元素是整个列表的第几个
           index = this.playlist.findIndex((song)=>{
             return song.id === item.id
           })
           console.log('随机'+index)
         }
         this.setCurrentIndex(index)
+        this.setPlayingState(true)
+      },
+      scrollToCurrent(current) {
+        // 查找点击的元素是整个列表的第几个
+        const index = this.sequenceList.findIndex((song)=>{
+          return current.id === song.id
+        })
+        console.log('curt'+index)
+        this.$refs.listContent.scrollToElement(this.$refs.listItem[index],300)
       },
       ...mapMutations({
-        'setCurrentIndex':'SET_CURRENT_INDEX'
+        'setCurrentIndex':'SET_CURRENT_INDEX',
+        'setPlayingState':'SET_PLAYING_STATE'
       })
+    },
+    watch: {
+      currentSong(newSong,oldSong){
+        if(!this.showFlag || newSong.id === oldSong.id){
+          return
+        }
+        this.scrollToCurrent(newSong)
+      }
     },
     components:{
       Scroll
