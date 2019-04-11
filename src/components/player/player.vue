@@ -101,11 +101,12 @@
           </progress-circle>
         </div>
         <!-- 歌曲列表展开按钮 -->
-        <div class="control">
+        <div class="control" @click="showPlaylsit">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
+    <playlist ref="playlist"></playlist>
     <!-- canplay为歌曲加载完成播放前派发事件 timeupdate为歌曲播放后触发 -->
     <!-- audio标签在播放完成后触发ended -->
     <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
@@ -122,6 +123,7 @@ import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/util'
 import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/scroll'
+import Playlist from 'components/playlist/playlist'
 
 const transform = prefixStyle('transform')
 const transitionDuration = prefixStyle('transitionDuration')
@@ -460,6 +462,11 @@ export default {
         this.$refs.middleL.style[transitionDuration] = `${time}ms`
         this.touch.initiated = false
       },
+      // 打开播放队列
+      showPlaylsit() {
+        // 调用playlist组件的show方法
+        this.$refs.playlist.show()
+      },
       // mutation-types.js文件的映射 制造一个方法名来映射
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
@@ -495,7 +502,8 @@ export default {
     components:{
       ProgressBar,
       ProgressCircle,
-      Scroll
+      Scroll,
+      Playlist
     }
 }
   
