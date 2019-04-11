@@ -137,6 +137,9 @@
             // 派发给父组search.vue件保存搜索历史
             this.$emit('select')
         },
+        refresh(){
+            this.$refs.suggest.refresh()
+        },
         _genResult(data){
             // let ret = []
             this.ret2 = []

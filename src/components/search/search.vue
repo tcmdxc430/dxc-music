@@ -35,7 +35,7 @@
     </div>
     <!-- 搜索出的结果 -->
     <div ref="searchResult" class="search-result" v-show="query">
-      <suggest @select="saveSearch" @listScroll="blurInput" :query="query"></suggest>
+      <suggest ref="suggest" @select="saveSearch" @listScroll="blurInput" :query="query"></suggest>
     </div>
     <confirm ref="confirm" text="are you ok?" confirmBtnText="清空" @confirm="deleteAll"></confirm>
     <router-view></router-view>
@@ -47,13 +47,13 @@ import SearchBox from 'base/search-box/search-box'
 import {getHotKey} from 'api/search'
 import {ERR_OK} from 'api/config'
 import Suggest from 'components/suggest/suggest'
-import {mapActions,mapGetters} from 'vuex'
 import SearchList from 'base/search-list/search-list'
 import Confirm from 'base/confirm/confirm'
 import Scroll from 'base/scroll/scroll'
-// import {playlistMixin} from 'common/js/mixin'
+import {playListMixin} from 'common/js/mixin'
+import {mapActions,mapGetters} from 'vuex'
 export default {
-  // mixins:[playlistMixin],
+  mixins:[playListMixin],
   data () {
     return {
       hotKey:[],
@@ -75,11 +75,13 @@ export default {
     ])
   },
   methods: {
-    // handlePlaylist(playlist){
-    //   const bottom = playlist.length>0?'60px':''
-    //   this.$refs.shortcutWrapper.style.bottom = bottom
-    //   this.$refs.SearchResult.style.bottom = bottom
-    // },
+    handlePlayList(playlist){
+      const bottom = playlist.length>0?'60px':''
+      this.$refs.shortcutWrapper.style.bottom = bottom
+      this.$refs.shortcut.refresh()
+      this.$refs.searchResult.style.bottom = bottom
+      this.$refs.suggest.refresh()
+    },
     _getHotKey(){
       getHotKey().then((res)=>{
         if(res.code === ERR_OK){
@@ -134,7 +136,7 @@ export default {
     Suggest,
     SearchList,
     Confirm,
-    Scroll
+    Scroll,
   }
 }
 
