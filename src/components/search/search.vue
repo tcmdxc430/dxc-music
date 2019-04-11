@@ -8,7 +8,8 @@
     </div>
     <!-- 没有搜索文时展示 热门列表 -->
     <div ref="shortcutWrapper" class="shortcut-wrapper" v-show="!query">
-      <div ref="shortcut" class="shortcut">
+      <scroll ref="shortcut" class="shortcut" :data="shortcut">
+        <!-- 由于scroll组件只能对其中一个元素快生效 所以需要在最外层包一个div -->
         <div>
           <div class="hot-key">
             <h1 class="title">热门</h1>
@@ -30,7 +31,7 @@
             <search-list @select="addQuery" @delete="deleteOne" :searches="searchHistory"></search-list>
           </div>
         </div>
-      </div>
+      </scroll>
     </div>
     <!-- 搜索出的结果 -->
     <div ref="searchResult" class="search-result" v-show="query">
@@ -49,6 +50,7 @@ import Suggest from 'components/suggest/suggest'
 import {mapActions,mapGetters} from 'vuex'
 import SearchList from 'base/search-list/search-list'
 import Confirm from 'base/confirm/confirm'
+import Scroll from 'base/scroll/scroll'
 // import {playlistMixin} from 'common/js/mixin'
 export default {
   // mixins:[playlistMixin],
@@ -63,6 +65,10 @@ export default {
     this._getHotKey()
   },
   computed: {
+    // 为了使scroll中两组数据只要改变就重新计算 把数据合成一个
+    shortcut(){
+      return this.hotKey.concat(this.searchHistory)
+    },
     // 从vuex获取数据
     ...mapGetters([
       'searchHistory'
@@ -114,16 +120,25 @@ export default {
       'clearSearchHistory'
     ])
   },
+  watch:{
+    query(newQuery){
+      if(!newQuery){
+        setTimeout(() => {
+          this.$refs.shortcut.refresh()
+        }, 20);
+      }
+    }
+  },
   components: {
     SearchBox,
     Suggest,
     SearchList,
-    Confirm
+    Confirm,
+    Scroll
   }
 }
 
 </script>
-
 <style lang="stylus" rel="stylesheet/stylus">
   @import "~common/stylus/variable"
   @import "~common/stylus/mixin"
