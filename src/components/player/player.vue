@@ -479,6 +479,10 @@ export default {
     watch:{
       // 当currentSong发生变化时播放
       currentSong(newSong,oldSong) {
+        // d当列表中没有歌曲时
+        if(!newSong.id){
+          return
+        }
         if(newSong.id == oldSong.id){
           return
         }
