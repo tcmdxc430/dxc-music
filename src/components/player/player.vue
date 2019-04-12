@@ -120,7 +120,7 @@ import {prefixStyle} from 'common/js/dom'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
 import {playMode} from 'common/js/config'
-import {shuffle} from 'common/js/util'
+import {playerMixin} from 'common/js/mixin'
 import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/scroll'
 import Playlist from 'components/playlist/playlist'
@@ -129,6 +129,7 @@ const transform = prefixStyle('transform')
 const transitionDuration = prefixStyle('transitionDuration')
 
 export default {
+    mixins:[playerMixin],
     data() {
       return{
         songReady:false,
@@ -156,17 +157,10 @@ export default {
         percent() {
           return this.currentTime/this.currentSong.duration
         },
-        iconMode() {
-           return this.mode == playMode.sequence?'icon-sequence':this.mode == playMode.loop?'icon-loop':'icon-random'
-        },
         ...mapGetters([
             'fullScreen',
-            'playlist',
-            'currentSong',
             'playing',
             'currentIndex',
-            'mode',
-            'sequenceList'
         ])
     },
     created() {
@@ -340,27 +334,6 @@ export default {
           this.currentLyric.seek(currentTime*1000)
         }
       },
-      // 每点击一次 更换一次循环模式
-      changeMode() {
-        const mode = (this.mode+1)%3
-        this.setPlayMode(mode)
-        let list = null
-        if(mode == playMode.random){
-          list = shuffle(this.sequenceList)
-        } else{
-          list = this.sequenceList
-        }
-        this.resetCurrnetIndex(list)
-        this.setPlayList(list)
-      },
-      // 播放模式改变时 当前歌曲不变
-      resetCurrnetIndex(list) {
-        // findIndex是es6语法，类似foreach index为歌曲索引
-        let index = list.findIndex((item)=>{
-          return item.id == this.currentSong.id
-        })
-        this.setCurrentIndex(index)
-      },
       getLyric() {
         this.currentSong.getLyric().then((lyric)=>{
           console.log('getLyric')
@@ -470,10 +443,6 @@ export default {
       // mutation-types.js文件的映射 制造一个方法名来映射
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
-        setPlayingState:'SET_PLAYING_STATE',
-        setCurrentIndex:'SET_CURRENT_INDEX',
-        setPlayMode: 'SET_PLAY_MODE',
-        setPlayList:'SET_PLAYLIST'
       })
     },
     watch:{
