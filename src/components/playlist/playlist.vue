@@ -19,7 +19,7 @@
               <span class="like">
                 <i class="icon-not-favorite"></i>
               </span>
-              <span class="delete">
+              <span class="delete" @click="deleteOne(item)">
                 <i class="icon-delete"></i>
               </span>
             </li>
@@ -60,7 +60,8 @@
       ...mapGetters([
         'sequenceList',
         'currentSong',
-        'playlist'
+        'playlist',
+        'mode'
       ])
     },
     methods: {
@@ -99,6 +100,9 @@
         })
         console.log('curt'+index)
         this.$refs.listContent.scrollToElement(this.$refs.listItem[index],300)
+      },
+      deleteOne(item){
+        
       },
       ...mapMutations({
         'setCurrentIndex':'SET_CURRENT_INDEX',

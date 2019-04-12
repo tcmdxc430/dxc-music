@@ -95,3 +95,27 @@ export const clearSearchHistory = function({commit}){
     // 把新列表提交到types.SET_SEARCH_HISTORY更新
     commit(types.SET_SEARCH_HISTORY,clearSearch())// 去cache中清除本地缓存
 }
+
+export const deleteSong = function({commit,state},song) {
+    // slice返回一个克隆对象
+    let playlist = state.playlist.slice()
+    let sequenceList = state.sequenceList.slice()
+    let currentIndex = state.currentIndex
+    let pIndex = findIndex(playlist,song)
+    console.log('pIndex'+pIndex)
+    playlist.splice(pIndex,1)
+    let sIndex = findIndex(sequenceList,song)
+    sequenceList.splice(sIndex,1)
+    // 当前播放歌曲在删除歌曲之后，删除的是最后一个且正在播放
+    if(currentIndex>pIndex || pIndex === playlist.length){
+        currentIndex--
+    }
+
+    commit(types.SET_PLAYLIST,playlist)
+    commit(types.SET_SEQUENCE_LIST,sequenceList)
+    commit(types.SET_CURRENT_INDEX,currentIndex)
+    // 当队列中没有歌曲 停止播放
+    if(!playlist.length){
+        commit(types.SET_PLAYING_STATE,false)
+    }
+}
