@@ -95,7 +95,7 @@ export const clearSearchHistory = function({commit}){
     // 把新列表提交到types.SET_SEARCH_HISTORY更新
     commit(types.SET_SEARCH_HISTORY,clearSearch())// 去cache中清除本地缓存
 }
-
+// 删除播放队列中1首
 export const deleteSong = function({commit,state},song) {
     // slice返回一个克隆对象
     let playlist = state.playlist.slice()
@@ -115,9 +115,18 @@ export const deleteSong = function({commit,state},song) {
     commit(types.SET_SEQUENCE_LIST,sequenceList)
     commit(types.SET_CURRENT_INDEX,currentIndex)
     // 当队列中没有歌曲 停止播放
-    if(!playlist.length){
-        commit(types.SET_PLAYING_STATE,false)
-    }else{
-        commit(types.SET_PLAYING_STATE,true)
-    }
+    const playingState = playlist.length > 0
+    commit(types.SET_PLAYING_STATE,playingState)
+    // if(!playlist.length){
+    //     commit(types.SET_PLAYING_STATE,false)
+    // }else{
+    //     commit(types.SET_PLAYING_STATE,true)
+    // }
+}
+// 删除整个播放队列
+export const deleteSongList = function({commit}){
+    commit(types.SET_PLAYLIST,[])
+    commit(types.SET_SEQUENCE_LIST,[])
+    commit(types.SET_CURRENT_INDEX,-1)
+    commit(types.SET_PLAYING_STATE,false)
 }

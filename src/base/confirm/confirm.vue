@@ -1,7 +1,7 @@
 <template>
   <!-- 弹窗 -->
   <transition name="confirm-fade">
-    <div class="confirm" v-show="showFlag">
+    <div class="confirm" v-show="showFlag" @click.stop>
         <!-- 内容 -->
       <div class="confirm-wrapper">
         <div class="confirm-content">
