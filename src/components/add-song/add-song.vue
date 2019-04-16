@@ -15,10 +15,10 @@
       <div class="shortcut" v-show="!query">
         <switches :switches="switches" :currentIndex="currentIndex" @switch="switchItem"></switches>
         <div class="list-wrapper">
-          <scroll ref="songList" class="list-scroll" >
+          <!-- 播放记录列表,tabs在第一个时候显示 -->
+          <scroll ref="songList" v-if="currentIndex===0" :data="playHistory" class="list-scroll" >
             <div class="list-inner">
-              <!-- <song-list :songs="playHistory" @select="selectSong"> -->
-              <!-- </song-list> -->
+              <song-list :songs="playHistory" @select="selectSong"></song-list>
             </div>
           </scroll>
           <scroll class="list-scroll" >
@@ -43,15 +43,15 @@
 
 <script type="text/ecmascript-6">
   import SearchBox from 'base/search-box/search-box'
-  // import SongList from 'base/song-list/song-list'
+  import SongList from 'base/song-list/song-list'
   // import SearchList from 'base/search-list/search-list'
-  // import Scroll from 'base/scroll/scroll'
+  import Scroll from 'base/scroll/scroll'
   import Switches from 'base/switches/switches'
   // import TopTip from 'base/top-tip/top-tip'
   import Suggest from 'components/suggest/suggest'
   import {searchMixin} from 'common/js/mixin'
-  // import {mapGetters, mapActions} from 'vuex'
-  // import Song from 'common/js/song'
+  import {mapGetters, mapActions} from 'vuex'
+  import Song from 'common/js/song'
 
   export default {
     mixins:[searchMixin],
@@ -67,6 +67,11 @@
         ]
       }
     },
+    computed: {
+      ...mapGetters([
+        'playHistory'
+      ])
+    },
     methods: {
       show() {
         this.showFlag = true
@@ -80,12 +85,24 @@
       },
       switchItem(index) {
         this.currentIndex = index
-      }
+      },
+      // 点击播放记录中歌曲时插入到播放队列
+      selectSong(song,index) {
+        // 当点击的不是第一个记录时 因为第一个记录已加入
+        if(index != 0) {
+          this.insertSong(new Song(song))
+        }
+      },
+      ...mapActions([
+        'insertSong'
+      ])
     },
     components:{
       SearchBox,
       Suggest,
-      Switches
+      Switches,
+      Scroll,
+      SongList
     }
   }
 </script>

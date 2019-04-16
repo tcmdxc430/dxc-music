@@ -5,6 +5,9 @@ import storage from 'good-storage';// 由于localstorage存储的是字符串，
 // 仅内部使用的key列表 为了不会命名冲突
 const SEARCH_KEY = '__search__'
 const SEARCH_MAX_LENGTH = 15 // 最多存15条历史
+
+const PLAY_KEY = '__play__'
+const PLAY_MAX_LENGTH = 200// 播放记录最大值
 // 去除重复字段并使最新字段展示在最前方
 function insertArray(arr, val,compare,maxLen){
     // 查找arr数组中是否有这个字段，并返回位置，传入一个function，compare
@@ -48,11 +51,29 @@ export function saveSearch(query) {
     storage.set(SEARCH_KEY,searches)
     return searches
 }
+// 存储播放记录
+export function savePlay(song) {
+    // 获取现有播放记录，如果没有返回[]
+    let songs = storage.get(PLAY_KEY,[])
+    // 把正在播放的song插入的songs中，并判断是否已经存在
+    insertArray(songs,song,(item)=>{
+        return item.id === song.id
+    },PLAY_MAX_LENGTH)
+    // 存储生成的songs到本地
+    storage.set(PLAY_KEY,songs)
+    return songs
+}
 
 // 从本都缓存读取searchlist
 export function loadSearch(){
     // 如果没有设为空
     return storage.get(SEARCH_KEY,[])
+}
+
+// 从本都缓存读取songs播放记录
+export function loadPlay(){
+    // 如果没有设为空
+    return storage.get(PLAY_KEY,[])
 }
 
 // 删除指定历史记录方法
@@ -71,3 +92,4 @@ export function clearSearch(){
     storage.remove(SEARCH_KEY)
     return []
 }
+

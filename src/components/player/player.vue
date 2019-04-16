@@ -114,7 +114,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import {mapGetters,mapMutations} from 'vuex';
+import {mapGetters,mapMutations,mapActions} from 'vuex';
 import animations from 'create-keyframe-animation' // 用于将js代码编译为css animate
 import {prefixStyle} from 'common/js/dom'
 import ProgressBar from 'base/progress-bar/progress-bar'
@@ -305,6 +305,8 @@ export default {
       // 歌曲加载完成时
       ready() {
         this.songReady = true
+        // 播放歌曲时把歌曲加入播放历史
+        this.savePlayHistory(this.currentSong)
       },
       error() {
         this.songReady = true
@@ -443,7 +445,10 @@ export default {
       // mutation-types.js文件的映射 制造一个方法名来映射
       ...mapMutations({
         setFullScreen: 'SET_FULL_SCREEN',
-      })
+      }),
+      ...mapActions([
+        'savePlayHistory'
+      ])
     },
     watch:{
       // 当currentSong发生变化时播放
