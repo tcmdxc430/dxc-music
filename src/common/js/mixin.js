@@ -1,6 +1,6 @@
 // mixin.js中为公共js代码片段，用于合并到其他组件代码中，同名方法将优先执行组件中的
 
-import {mapGetters,mapMutations} from 'vuex'
+import {mapGetters,mapMutations,mapActions} from 'vuex'
 import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/util'
 
@@ -30,7 +30,7 @@ export const playListMixin = {
         }
     },
 }
-
+// 播放模式切换通用代码
 export const playerMixin = {
     computed: {
         iconMode() {
@@ -72,4 +72,39 @@ export const playerMixin = {
         setPlayList:'SET_PLAYLIST'
       })
     },
+}
+// 搜索历史通用代码
+export const searchMixin = {
+  data() {
+    return {
+      query: '',
+    }
+  },
+  computed: {
+    // 从vuex获取数据
+    ...mapGetters([
+      'searchHistory'
+    ])
+  },
+  methods: {
+    // 在产生滚动时 让input失去焦点
+    blurInput(){
+      this.$refs.searchBox.blur()
+    },
+    // 接到子组件suggest的广播事件，保存历史记录
+    saveSearch(){
+      this.saveSearchHistory(this.query)
+    },
+    onQueryChange(query){
+      this.query = query
+    },
+    addQuery(query){
+      // 父组件传入子组件的第二种方法，调用子组件方法 传入父组件参数
+      this.$refs.searchBox.setQuery(query)
+    },
+    ...mapActions([
+      'saveSearchHistory',
+      'deleteSearchHistory'
+    ])
+  },
 }

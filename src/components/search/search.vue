@@ -50,14 +50,13 @@ import Suggest from 'components/suggest/suggest'
 import SearchList from 'base/search-list/search-list'
 import Confirm from 'base/confirm/confirm'
 import Scroll from 'base/scroll/scroll'
-import {playListMixin} from 'common/js/mixin'
-import {mapActions,mapGetters} from 'vuex'
+import {playListMixin,searchMixin} from 'common/js/mixin'
+import {mapActions} from 'vuex'
 export default {
-  mixins:[playListMixin],
+  mixins:[playListMixin,searchMixin],
   data () {
     return {
-      hotKey:[],
-      query:''
+      hotKey:[]
     };
   },
   created() {
@@ -68,11 +67,7 @@ export default {
     // 为了使scroll中两组数据只要改变就重新计算 把数据合成一个
     shortcut(){
       return this.hotKey.concat(this.searchHistory)
-    },
-    // 从vuex获取数据
-    ...mapGetters([
-      'searchHistory'
-    ])
+    }
   },
   methods: {
     handlePlayList(playlist){
@@ -90,21 +85,6 @@ export default {
         }
       })
     },
-    addQuery(query){
-      // 父组件传入子组件的第二种方法，调用子组件方法 传入父组件参数
-      this.$refs.searchBox.setQuery(query)
-    },
-    onQueryChange(query){
-      this.query = query
-    },
-    // 在产生滚动时 让input失去焦点
-    blurInput(){
-      this.$refs.searchBox.blur()
-    },
-    // 接到子组件suggest的广播事件，保存历史记录
-    saveSearch(){
-      this.saveSearchHistory(this.query)
-    },
     // 删除指定搜索记录
     deleteOne(item){
       this.deleteSearchHistory(item)
@@ -117,8 +97,6 @@ export default {
       this.$refs.confirm.show()
     },
     ...mapActions([
-      'saveSearchHistory',
-      'deleteSearchHistory',
       'clearSearchHistory'
     ])
   },
