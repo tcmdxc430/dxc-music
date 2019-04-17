@@ -7,6 +7,7 @@ import Search from 'components/search/search' // 搜索
 import SingerDetail from 'components/singer-detail/singer-detail' // 歌手详情
 import Disc from 'components/disc/disc'// 推荐页二级路由
 import TopList from 'components/top-list/top-list'//排行详情耳机路由
+import UserCenter from 'components/user-center/user-center'// 个人中心
 
 
 Vue.use(Router)
@@ -60,6 +61,10 @@ export default new Router({
           component: SingerDetail
         }
       ]
+    },
+    {
+      path:'/user',
+      component:UserCenter
     }
     
   ]
