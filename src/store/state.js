@@ -1,6 +1,6 @@
 // 默认状态集合 初始化各种状态对象 使用vuex的step1
 import {playMode} from 'common/js/config'
-import {loadSearch,loadPlay} from 'common/js/cache'
+import {loadSearch,loadPlay,loadFavorite} from 'common/js/cache'
 // 定义默认state
 const state = {
     singer: {},
@@ -14,6 +14,7 @@ const state = {
     topList:{},
     searchHistory:loadSearch(),// 从缓存中读取初始化搜索历史列表
     playHistory: loadPlay(),// 从缓存中读取播放记录
+    favoriteList:loadFavorite(),// 从缓存中读取收藏列表
 }
 
 export default state

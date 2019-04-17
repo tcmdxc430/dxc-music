@@ -2,7 +2,7 @@
 import * as types from './mutation-types'
 import {playMode} from 'common/js/config'
 import {shuffle} from 'common/js/util'
-import {saveSearch,deleteSearch,clearSearch,savePlay} from 'common/js/cache'
+import {saveSearch,deleteSearch,clearSearch,savePlay,saveFavorite,deleteFavorite} from 'common/js/cache'
 // 查找list列表中有没有传入歌曲song 如果有返回索引
 function findIndex(list,song) {
     return list.findIndex((item)=>{
@@ -134,4 +134,14 @@ export const deleteSongList = function({commit}){
 export const savePlayHistory = function({commit},song){
     // 传入song当前播放歌曲后返回一个新的songs数组，传入SET_PLAY_HISTORY
     commit(types.SET_PLAY_HISTORY,savePlay(song))
+}
+// 点击收藏icon时
+export const saveFavoriteList = function({commit},song){
+    // 传入song(当前收藏歌曲)后返回一个新的songs数组，传入SET_FAVORITE_LIST
+    commit(types.SET_FAVORITE_LIST,saveFavorite(song))
+}
+// 点击红心取消收藏时
+export const deleteFavoriteList = function({commit},song){
+    // 传入song当前播放歌曲后返回一个新的songs数组，传入SET_PLAY_HISTORY
+    commit(types.SET_PLAY_HISTORY,deleteFavorite(song))
 }

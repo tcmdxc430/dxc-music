@@ -8,6 +8,9 @@ const SEARCH_MAX_LENGTH = 15 // 最多存15条历史
 
 const PLAY_KEY = '__play__'
 const PLAY_MAX_LENGTH = 200// 播放记录最大值
+
+const FAVORITE_KEY = '__favorite__'
+const FAVORITE_MAX_LENGTH = 200// 收藏列表最大值
 // 去除重复字段并使最新字段展示在最前方
 function insertArray(arr, val,compare,maxLen){
     // 查找arr数组中是否有这个字段，并返回位置，传入一个function，compare
@@ -92,4 +95,31 @@ export function clearSearch(){
     storage.remove(SEARCH_KEY)
     return []
 }
-
+// 存储收藏歌曲
+export function saveFavorite(song){
+    // 获取现有收藏列表，如果没有返回[]
+    let songs = storage.get(FAVORITE_KEY,[])
+    // 把正在播放的song插入的songs中，并判断是否已经存在 
+    insertArray(songs,song,(item)=>{
+        return item.id === song.id
+    },FAVORITE_MAX_LENGTH)
+    // 存储生成的songs到本地
+    storage.set(FAVORITE_KEY,songs)
+    return songs
+}
+// 删除指定收藏
+export function deleteFavorite(song){
+    // 获取现有收藏列表，如果没有返回[]
+    let songs = storage.get(FAVORITE_KEY,[])
+    deleteFromArray(songs,(item)=>{
+        return item.id === song.id
+    })
+    // 存储生成的songs到本地
+    storage.set(FAVORITE_KEY,songs)
+    return songs
+}
+// 从本都缓存读取初始化收藏
+export function loadFavorite(){
+    // 如果没有设为空
+    return storage.get(FAVORITE_KEY,[])
+}
