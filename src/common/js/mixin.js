@@ -40,7 +40,8 @@ export const playerMixin = {
             'sequenceList',
             'currentSong',
             'playlist',
-            'mode'
+            'mode',
+            'favoriteList'
         ])
     },
     methods: {
@@ -65,12 +66,41 @@ export const playerMixin = {
         })
         this.setCurrentIndex(index)
       },
+       // 获取收藏图标
+      getFavoriteIcon(song) {
+        
+        if(this.isFavorite(song)) {
+          return 'icon-favorite'
+        }
+        return 'icon-not-favorite'
+      },
+      // 点击收藏或者取消收藏
+      toggleFavorite(song) {
+        console.log(this.isFavorite(song))
+        if(this.isFavorite(song)) {
+          this.deleteFavoriteList(song)
+        }else{
+          this.saveFavoriteList(song)
+        }
+      },
+      // 判断是否已经收藏
+      isFavorite(song) {
+        // index>-1就为已收藏
+        const index = this.favoriteList.findIndex((item)=>{
+          return item.id == song.id
+        })
+        return index > -1
+      },
       ...mapMutations({
         setPlayingState:'SET_PLAYING_STATE',
         setCurrentIndex:'SET_CURRENT_INDEX',
         setPlayMode: 'SET_PLAY_MODE',
         setPlayList:'SET_PLAYLIST'
-      })
+      }),
+      ...mapActions([
+        'saveFavoriteList',
+        'deleteFavoriteList'
+      ])
     },
 }
 // 搜索历史通用代码

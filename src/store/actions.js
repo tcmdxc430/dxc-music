@@ -143,5 +143,5 @@ export const saveFavoriteList = function({commit},song){
 // 点击红心取消收藏时
 export const deleteFavoriteList = function({commit},song){
     // 传入song当前播放歌曲后返回一个新的songs数组，传入SET_PLAY_HISTORY
-    commit(types.SET_PLAY_HISTORY,deleteFavorite(song))
+    commit(types.SET_FAVORITE_LIST,deleteFavorite(song))
 }
