@@ -8,7 +8,7 @@
     </div>
     <!-- 没有搜索文时展示 热门列表 -->
     <div ref="shortcutWrapper" class="shortcut-wrapper" v-show="!query">
-      <scroll ref="shortcut" class="shortcut" :data="shortcut">
+      <scroll :refreshDelay="refreshDelay" ref="shortcut" class="shortcut" :data="shortcut">
         <!-- 由于scroll组件只能对其中一个元素快生效 所以需要在最外层包一个div -->
         <div>
           <div class="hot-key">

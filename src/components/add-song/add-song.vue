@@ -22,7 +22,7 @@
             </div>
           </scroll>
           <!-- 搜索历史列表,tabs在第二个时候显示 -->
-          <scroll ref="searchList" class="list-scroll" v-if="currentIndex===1" :data="searchHistory">
+          <scroll ref="searchList" :refreshDelay="refreshDelay" class="list-scroll" v-if="currentIndex===1" :data="searchHistory">
             <div class="list-inner">
               <search-list @delete="deleteSearchHistory" @select="addQuery" :searches="searchHistory"></search-list>
             </div>

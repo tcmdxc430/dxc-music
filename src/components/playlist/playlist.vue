@@ -11,7 +11,7 @@
           </h1>
         </div>
         <!-- 列表  -->
-        <scroll ref="listContent" :data="sequenceList" class="list-content" >
+        <scroll ref="listContent" :refreshDelay="refreshDelay" :data="sequenceList" class="list-content" >
           <!-- transition-group渲染成ul标签类型 -->
           <transition-group name="list" tag="ul">
             <!-- transition-group的子元素需要定义key类区分每一条子元素 -->
@@ -57,7 +57,8 @@
     mixins:[playerMixin],
     data(){
       return{
-        showFlag: false
+        showFlag: false,
+        refreshDelay:100
       }
     },
     computed: {
