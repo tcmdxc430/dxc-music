@@ -6,7 +6,7 @@ export function shuffle(arr) {
     // slice返回一个复制arr的数组
     let _arr = arr.slice()
     // 随机对调数组中的两个索引
-    for(i in _arr.length){
+    for(let i = 0; i < _arr.length; i++){
         let j = getRandomInt(0,i)
         let t = _arr[i]
         _arr[i] = _arr[j]
