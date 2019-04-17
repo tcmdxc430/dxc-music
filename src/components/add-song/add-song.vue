@@ -21,9 +21,10 @@
               <song-list :songs="playHistory" @select="selectSong"></song-list>
             </div>
           </scroll>
-          <scroll class="list-scroll" >
+          <!-- 搜索历史列表,tabs在第二个时候显示 -->
+          <scroll ref="searchList" class="list-scroll" v-if="currentIndex===1" :data="searchHistory">
             <div class="list-inner">
-              <!-- <search-list @delete="deleteSearchHistory" @select="addQuery" :searches="searchHistory"></search-list> -->
+              <search-list @delete="deleteSearchHistory" @select="addQuery" :searches="searchHistory"></search-list>
             </div>
           </scroll>
         </div>
@@ -44,7 +45,7 @@
 <script type="text/ecmascript-6">
   import SearchBox from 'base/search-box/search-box'
   import SongList from 'base/song-list/song-list'
-  // import SearchList from 'base/search-list/search-list'
+  import SearchList from 'base/search-list/search-list'
   import Scroll from 'base/scroll/scroll'
   import Switches from 'base/switches/switches'
   // import TopTip from 'base/top-tip/top-tip'
@@ -75,6 +76,13 @@
     methods: {
       show() {
         this.showFlag = true
+        setTimeout(() => {
+          if(this.currentIndex === 0){
+            this.$refs.songList.refresh()
+          }else{
+            this.$refs.searchList.refresh()
+          }
+        }, 20);
       },
       hide() {
         this.showFlag = false
@@ -102,7 +110,8 @@
       Suggest,
       Switches,
       Scroll,
-      SongList
+      SongList,
+      SearchList
     }
   }
 </script>
