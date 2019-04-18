@@ -340,6 +340,10 @@ export default {
       getLyric() {
         this.currentSong.getLyric().then((lyric)=>{
           console.log('getLyric')
+          // 上一个歌曲歌词还没加载完就切换下一首时触发 避免歌词混淆
+          if(this.currentSong.lyric != lyric){
+            return
+          }
           // 歌词行变更时 回调handleLyric
           this.currentLyric = new Lyric(lyric,this.handleLyric)
           if(this.playing) {
