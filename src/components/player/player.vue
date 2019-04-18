@@ -109,7 +109,8 @@
     <playlist ref="playlist"></playlist>
     <!-- canplay为歌曲加载完成播放前派发事件 timeupdate为歌曲播放后触发 -->
     <!-- audio标签在播放完成后触发ended -->
-    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
+    <!-- oncanplay为加载完触发 onplay为真正播放时触发 -->
+    <audio :src="currentSong.url" ref="audio" @play="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
   </div>
 </template>
 
@@ -462,8 +463,12 @@ export default {
         }
         if(this.currentLyric) {
           this.currentLyric.stop()
+          this.currentTime = 0
+          this.playingLyric = ''
+          this.currentLineNum = 0
         }
-        setTimeout(()=>{
+        clearTimeout(this.timer)
+        this.timer = setTimeout(()=>{
           this.$refs.audio.play()
           // 加载歌词
           this.getLyric()
