@@ -270,6 +270,7 @@ export default {
         // 当列表中只有一首歌曲时，执行loop使歌曲变更为单曲循环
         if(this.playlist.length == 1){
           this.loop()
+          return
         }else {
           let index = this.currentIndex+1
           if(index == this.playlist.length) {
@@ -291,6 +292,7 @@ export default {
          // 当列表中只有一首歌曲时，执行loop使歌曲变更为单曲循环
         if(this.playlist.length == 1){
           this.loop()
+          return
         }else{
           let index = this.currentIndex-1
           if(index == -1) {
