@@ -7,6 +7,10 @@ import fastclick from "fastclick" // 移动端300ms点击延迟
 import VueLazyLoad from 'vue-lazyload'
 
 import 'common/stylus/index.styl'
+
+import vConsole from 'vconsole'// 移动端调试工具
+var VConsole = new vConsole();
+console.log('test start')
 // Vue.config.productionTip = false
 // 全局设置fastclick
 fastclick.attach(document.body)
